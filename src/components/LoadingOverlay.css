@@ -1,0 +1,66 @@
+/* src/components/LoadingOverlay.css */
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none; /* Allows interactions with underlying elements */
+    z-index: 1050; /* Higher than Bootstrap modals (1050) to ensure visibility */
+  }
+  
+  .loading-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .shimmer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to right,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.5) 50%,
+      rgba(255,255,255,0) 100%
+    );
+    background-repeat: no-repeat;
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  .pokemon-item-enter {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  .pokemon-item-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 300ms, transform 300ms;
+  }
+  .pokemon-item-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .pokemon-item-exit-active {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 300ms, transform 300ms;
+  }
+  

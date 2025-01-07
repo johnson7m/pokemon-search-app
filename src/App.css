@@ -1,0 +1,50 @@
+
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+
+/* src/App.css */
+.error-message {
+    color: red;
+    margin-top: 10px;
+  }
+  
+
+/* src/App.css */
+.success-message {
+    color: green;
+    margin-top: 10px;
+  }
+  
+
+
+  .app.light {
+    background-color: #ffffff;
+    color: #000000;
+  }
+  
+  .app.dark {
+    background-color: #121212;
+    color: #ffffff;
+  }
+/* Adjust card image size */
+.card img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Adjust table font size */
+.table td,
+.table th {
+  font-size: 0.9rem;
+}
+
+/* Add margin to lists */
+ul {
+  margin-left: 1rem;
+}
+

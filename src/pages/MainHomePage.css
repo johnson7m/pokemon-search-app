@@ -1,0 +1,14 @@
+/* Center the card content on smaller screens */
+@media (max-width: 767px) {
+    .featured-pokemon .card-body {
+      text-align: center;
+    }
+  }
+  
+  /* Adjust the image size on smaller screens */
+  @media (max-width: 576px) {
+    .featured-pokemon .card-img {
+      max-width: 150px;
+    }
+  }
+  

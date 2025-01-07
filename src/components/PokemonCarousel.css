@@ -1,0 +1,12 @@
+/* src/components/PokemonCarousel.css */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 20%;
+
+}
+
+.carousel-control-prev-icon:hover,
+.carousel-control-next-icon:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}

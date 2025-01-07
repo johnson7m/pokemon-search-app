@@ -1,0 +1,35 @@
+/* src/components/SearchBar.css */
+
+/* Autocomplete Dropdown Styling */
+.autocomplete-results {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    background-color: inherit;
+    border: 1px solid #ced4da;
+    border-top: none;
+  }
+  
+  .autocomplete-results .list-group-item {
+    cursor: pointer;
+  }
+  
+  .autocomplete-results .list-group-item:hover,
+  .autocomplete-results .list-group-item:focus {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Responsive Adjustments for Autocomplete */
+  @media (max-width: 576px) {
+    .autocomplete-results {
+      max-height: 150px;
+    }
+  }
+  
+  /* Optional: Add smooth transitions for collapse */
+  #advanced-search-collapse {
+    transition: height 0.3s ease;
+  }
+  

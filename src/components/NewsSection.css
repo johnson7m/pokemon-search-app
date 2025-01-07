@@ -1,0 +1,40 @@
+/* src/components/NewsSection.css */
+
+.news-section .card {
+    height: 75%;
+  }
+  
+  .news-section .card-img-top {
+    height: 150px;
+    object-fit: cover;
+  }
+  
+  .news-section .card-title {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  
+  .news-section .card-text {
+    font-size: 0.9rem;
+    max-height: 4.5em; /* Limit text to approximately 3 lines */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .news-section .card-footer {
+    font-size: 0.8rem;
+  }
+  
+  .news-section .card-body {
+    padding: 0.75rem;
+  }
+  
+  .news-section .card-footer {
+    padding: 0.5rem;
+  }
+  
+  .news-section .card .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+  
