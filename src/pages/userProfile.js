@@ -1,18 +1,19 @@
 // src/pages/UserProfile.js
 import React, { useContext, useState, useEffect } from 'react';
-import { auth } from '../firebase';
 import { updateProfile, updateEmail, updatePassword } from 'firebase/auth';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { getUserStats, getUserPreferences, saveUserPreferences } from '../services/userService';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const UserProfile = () => {
-  const [user, setUser] = useState(null);
+  const { theme } = useContext(ThemeContext);
+  const { user } = useAuthContext();
+
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState('');
-  const {theme, setTheme} = useContext(ThemeContext);
   const [stats, setStats] = useState(null);
   const [preferences, setPreferences] = useState({
     emailNotifications: true,
@@ -29,31 +30,22 @@ const UserProfile = () => {
         const userStats = await getUserStats(user.uid);
         setStats(userStats);
       }
-    }
-    
-    fetchUserStats();
-  }, [user])
+    };
 
-  useEffect(() => {
-    const currentUser = auth.currentUser;
-    setUser(currentUser);
-    if (currentUser) {
-      setDisplayName(currentUser.displayName || '');
-      setEmail(currentUser.email || '');
-    }
-  }, []);
-
-    // Fetch user preferences when component mounts
-    useEffect(() => {
       const fetchUserPreferences = async () => {
         if (user) {
           const prefs = await getUserPreferences(user.uid);
           setPreferences(prefs);
         }
       };
-  
+
+    if (user) {
+      setDisplayName(user.displayName || 'new user');
+      setEmail(user.email || '');
+      fetchUserStats();
       fetchUserPreferences();
-    }, [user]);
+    }
+  }, [user]);
   
     const handlePreferencesChange = (e) => {
       const { name, value, checked, type } = e.target;
