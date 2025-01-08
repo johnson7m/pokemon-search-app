@@ -83,15 +83,45 @@ const CustomNavbar = () => {
 
             {user ? (
               <>
-                <Nav.Link style={{color: `${theme === 'light' ? 'black' : 'white'}`}} as={Link} to="/home" onClick={handleClose}>Home</Nav.Link>
-                <Nav.Link style={{color: `${theme === 'light' ? 'black' : 'white'}`}} as={Link} to="/profile" onClick={handleClose}>
-                  Profile
-                </Nav.Link>
-                <Nav.Link style={{color: `${theme === 'light' ? 'black' : 'white'}`}} as={Link} to="/search" onClick={handleClose}>
-                  Search
-                </Nav.Link>
-                <Nav.Link style={{color: `${theme === 'light' ? 'black' : 'white'}`}} onClick={handleLogOut}>Log Out</Nav.Link>
-              </>
+              <Nav.Link
+                style={{ color: `${theme === 'light' ? 'black' : 'white'}` }}
+                as={Link}
+                to="/home"
+                onClick={handleClose}
+              >
+                Home
+              </Nav.Link>
+              <Nav.Link
+                style={{ color: `${theme === 'light' ? 'black' : 'white'}` }}
+                as={Link}
+                to="/dashboard"
+                onClick={handleClose}
+              >
+                Dashboard
+              </Nav.Link>
+              <Nav.Link
+                style={{ color: `${theme === 'light' ? 'black' : 'white'}` }}
+                as={Link}
+                to="/profile"
+                onClick={handleClose}
+              >
+                Profile
+              </Nav.Link>
+              <Nav.Link
+                style={{ color: `${theme === 'light' ? 'black' : 'white'}` }}
+                as={Link}
+                to="/search"
+                onClick={handleClose}
+              >
+                Search
+              </Nav.Link>
+              <Nav.Link
+                style={{ color: `${theme === 'light' ? 'black' : 'white'}` }}
+                onClick={handleLogOut}
+              >
+                Log Out
+              </Nav.Link>
+            </>
             ) : (
               <>
                 <Nav.Link as={Link} to="/signup" onClick={handleClose}>
