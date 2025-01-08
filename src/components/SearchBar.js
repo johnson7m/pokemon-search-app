@@ -158,7 +158,6 @@ const SearchBar = () => {
       return stage;
     } catch (error) {
       console.error(`Error determining evolution stage for ${pokemonName}:`, error);
-      setErrorMessage(`Failed to determine evolution stage for ${pokemonName}.`);
       return 1; // Default to stage 1 if error occurs
     }
   };
@@ -219,7 +218,8 @@ const SearchBar = () => {
 
       // Fetch Pokémon by Evolution Stage
       if (selectedEvolutionStage) {
-        const pokemonNamesArray = Array.from(pokemonSet);
+        const pokemonNamesArray = Array.from(pokemonSet.size > 0 ? pokemonSet : allPokemonList.map((p) => p.name));
+        
         const stagePromises = pokemonNamesArray.map((name) => getEvolutionStage(name));
         const stages = await Promise.all(stagePromises);
 

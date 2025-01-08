@@ -1,6 +1,5 @@
 // src/components/NewsSection.js
 import React, { useContext, useEffect, useState } from 'react';
-import { Card, Col, Row, Button } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
 import axios from 'axios';
 import './NewsSection.css';
