@@ -14,10 +14,10 @@ import {
   Spinner,
 } from 'react-bootstrap';
 import { toggleFavoritePokemon, getFavoritePokemon } from '../services/firestoreService';
-import { getAuth } from 'firebase/auth';
 import useToast from '../hooks/useToast';
 import axios from 'axios';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { AuthContext, useAuthContext } from '../contexts/AuthContext';
 import './PokemonDetailPage.css'; // Import custom CSS for styling
 import SearchBar from '../components/SearchBar';
 
@@ -37,7 +37,7 @@ const PokemonDetailPage = () => {
     setShowToast,
     triggerToast,
   } = useToast();
-  const auth = getAuth();
+  const { user } = useAuthContext();
   const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const PokemonDetailPage = () => {
         setPokemon(pokemonData);
 
         // Check if this Pokémon is in favorites
-        if (auth.currentUser) {
+        if (user) {
           const favorites = await getFavoritePokemon();
           setIsFavorite(favorites.some((fav) => fav.id === pokemonData.id));
         } else {
@@ -66,7 +66,7 @@ const PokemonDetailPage = () => {
     };
 
     fetchPokemon();
-  }, [location.state, params.id, auth.currentUser]);
+  }, [location.state, params.id, user]);
 
   // Fetch Pokémon species data and evolution chain
   useEffect(() => {
@@ -89,7 +89,7 @@ const PokemonDetailPage = () => {
   }, [params.id]);
 
   const handleToggleFavorite = async () => {
-    if (!auth.currentUser) {
+    if (!user) {
       triggerToast('Please log in to save favorites.', 'warning');
       return;
     }

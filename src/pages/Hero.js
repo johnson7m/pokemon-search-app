@@ -1,26 +1,24 @@
 import React, { useEffect, useContext, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebase';
 import { motion } from 'framer-motion';
 import { Button, Container } from 'react-bootstrap';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import './Hero.css';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { useAuthContext } from '../contexts/AuthContext';
 
 
 const Hero = () => {
   const navigate = useNavigate();
   const { theme } = useContext(ThemeContext);
+  const { user } = useAuthContext();
 
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         navigate('/home');
       }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
+  }, [user, navigate]);
 
   const handleBeginSearch = () => {
     navigate('/home');
