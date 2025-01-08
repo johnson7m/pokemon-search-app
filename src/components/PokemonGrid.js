@@ -13,6 +13,10 @@ const PokemonGrid = ({ pokemonList, theme, isLoading }) => {
     return <PokemonGridSkeleton />;
   }
 
+  const formatPokemonName = (name) => {
+    return name.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   return (
     <div style={{ position: 'relative' }}>
       {isLoading && pokemonList.length > 0 && (
@@ -43,7 +47,7 @@ const PokemonGrid = ({ pokemonList, theme, isLoading }) => {
                   />
                   <Card.Body>
                     <Card.Title className="text-center text-capitalize">
-                      {pokemon.name}
+                      {formatPokemonName(pokemon.name)}
                     </Card.Title>
                   </Card.Body>
                 </Card>

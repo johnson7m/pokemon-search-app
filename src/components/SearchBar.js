@@ -24,6 +24,7 @@ import './SearchBar.css'; // Ensure this CSS file handles .autocomplete-results
 const SearchBar = () => {
   // State Variables
   const [searchTerm, setSearchTerm] = useState('');
+  const [includeAlters, setIncludeAlters] = useState(true);
   const [types, setTypes] = useState([]);
   const [selectedType, setSelectedType] = useState('');
   const [abilitiesList, setAbilitiesList] = useState([]);
@@ -68,6 +69,12 @@ const SearchBar = () => {
     };
     fetchData();
   }, []);
+
+  const formatPokemonName = (name) => {
+    return name.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  const isAlteration = (name) => name.includes('-');
 
   // Live Search Function with Debouncing
   const liveSearch = useCallback(
@@ -230,6 +237,10 @@ const SearchBar = () => {
         pokemonSet = new Set(filteredByStage);
       }
 
+      if (!includeAlters) {
+        pokemonSet = new Set([...pokemonSet].filter((name) => !isAlteration(name)));
+      }
+
       // If no filters selected, return empty results
       if (pokemonSet.size === 0) {
         setFilteredPokemonNames([]);
@@ -322,7 +333,7 @@ const SearchBar = () => {
                   }
                 }}
               >
-                {pokemon.name}
+                {formatPokemonName(pokemon.name)}
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -433,6 +444,16 @@ const SearchBar = () => {
                 )}
               </Form.Group>
             </Col>
+            {/* Alter Toggle */}
+            <Col xs={12}>
+              <Form.Check
+                type="switch"
+                id="alter-toggle"
+                label="Include Variants"
+                checked={includeAlters}
+                onChange={(e) => setIncludeAlters(e.target.checked)}
+              />
+            </Col>            
           </Row>
           {/* Search Button */}
           <Button
