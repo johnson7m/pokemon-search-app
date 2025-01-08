@@ -31,6 +31,7 @@
     /* Optional: Add any additional styles for the card */
     cursor: pointer;
     transition: transform 0.2s;
+    text-decoration: none;
   }
   
   .pokemon-card:hover {

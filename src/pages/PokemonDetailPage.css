@@ -38,6 +38,45 @@
     color: #343a40; /* Darker color on hover */
   }
   
+  /* Animation Classes for react-transition-group */
+  .pokemon-item-enter {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  .pokemon-item-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 300ms, transform 300ms;
+  }
+  .pokemon-item-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .pokemon-item-exit-active {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 300ms, transform 300ms;
+  }
+
+  /* Image and Card Styling */
+  .pokemon-image {
+    height: 200px;
+    object-fit: contain;
+    padding: 10px;
+  }
+
+  .pokemon-card {
+    cursor: pointer;
+    transition: transform 0.2s;
+    text-decoration: none;
+  }
+
+  .pokemon-card:hover {
+    transform: scale(1.05);
+  }
+
+
+
   /* Responsive Adjustments */
   @media (max-width: 576px) {
     .evolution-chain {

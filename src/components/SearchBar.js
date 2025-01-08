@@ -227,12 +227,14 @@ const SearchBar = () => {
       if (selectedEvolutionStage) {
         const pokemonNamesArray = Array.from(pokemonSet.size > 0 ? pokemonSet : allPokemonList.map((p) => p.name));
         
-        const stagePromises = pokemonNamesArray.map((name) => getEvolutionStage(name));
+        const stagePromises = pokemonNamesArray.map((name) => 
+          getEvolutionStage(name).catch(() => null)
+      );
         const stages = await Promise.all(stagePromises);
 
-        const filteredByStage = pokemonNamesArray.filter(
-          (name, index) => stages[index] === parseInt(selectedEvolutionStage)
-        );
+        const filteredByStage = pokemonNamesArray.filter((name, index) =>  {
+          return stages[index] === parseInt(selectedEvolutionStage) || stages[index] === null;
+        });
 
         pokemonSet = new Set(filteredByStage);
       }

@@ -1,6 +1,7 @@
 // src/pages/PokemonDetailPage.js
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {
   Container,
   Row,
@@ -12,12 +13,13 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Spinner,
+  Collapse,
 } from 'react-bootstrap';
 import { toggleFavoritePokemon, getFavoritePokemon } from '../services/firestoreService';
 import useToast from '../hooks/useToast';
 import axios from 'axios';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { AuthContext, useAuthContext } from '../contexts/AuthContext';
+import { useAuthContext } from '../contexts/AuthContext';
 import './PokemonDetailPage.css'; // Import custom CSS for styling
 import SearchBar from '../components/SearchBar';
 
@@ -26,6 +28,9 @@ const PokemonDetailPage = () => {
   const [species, setSpecies] = useState(null); // Species data
   const [evolutionChain, setEvolutionChain] = useState(null); // Evolution chain data
   const [isFavorite, setIsFavorite] = useState(false);
+  const [alternateForms, setAlternateForms] = useState([]);
+  const [showAlternates, setShowAlternates] = useState(false);
+  const [loadingAlternates, setLoadingAlternates] = useState(false);
   const [imageType, setImageType] = useState('classic'); // 'classic' or 'high-res'
   const location = useLocation();
   const params = useParams();
@@ -39,6 +44,9 @@ const PokemonDetailPage = () => {
   } = useToast();
   const { user } = useAuthContext();
   const { theme } = useContext(ThemeContext);
+
+  const alternateFormsRef = useRef(null);
+
 
   useEffect(() => {
     const fetchPokemon = async () => {
@@ -88,6 +96,44 @@ const PokemonDetailPage = () => {
     fetchSpecies();
   }, [params.id]);
 
+  const fetchAlternateForms = async () => {
+    if (!species) return;
+    
+    setLoadingAlternates(true); // Set loading state
+  
+    try {
+      const alternates = species.varieties
+      .filter((variety) => variety.pokemon.name !== pokemon.name) //excluding base form
+      .map((variety) => variety.pokemon.name);
+  
+      // Fetch detailed data for each alternate form
+      const alternateData = await Promise.all(
+        alternates.map(async (name) => {
+          try {
+            const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`);
+            return res.data;
+          } catch (error) {
+            console.error(`Error fetching data for ${name}:`, error);
+            return null;
+          }
+        })
+      );
+  
+      setAlternateForms(alternateData.filter((data) => data !== null)); // Set valid alternate forms
+
+
+    } catch (error) {
+      console.error('Error fetching alternate forms:', error);
+      triggerToast('Failed to load alternate forms.', 'danger');
+    } finally {
+      setLoadingAlternates(false); // Reset loading state
+    }
+  };  
+  
+  const formatPokemonName = (name) => {
+    return name.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   const handleToggleFavorite = async () => {
     if (!user) {
       triggerToast('Please log in to save favorites.', 'warning');
@@ -98,6 +144,10 @@ const PokemonDetailPage = () => {
     setIsFavorite(!isFavorite);
     triggerToast(result.message, result.success ? 'success' : 'danger');
   };
+
+  const hasAlternateForms = () => {
+    return species && species.varieties.length > 1;
+  }
 
   const handleImageToggle = (value) => {
     setImageType(value);
@@ -297,6 +347,71 @@ const PokemonDetailPage = () => {
 
       {/* Evolution Chain */}
       {renderEvolutionChain()}
+      {/* Alternate Forms Button */}
+      {hasAlternateForms() && (      
+        <Button
+          variant={theme === 'light' ? 'dark' : 'light'}
+          onClick={async () => {
+            if (!showAlternates) {
+              await fetchAlternateForms();
+            }
+            setShowAlternates(!showAlternates);
+          }}
+          className="mt-3 mb-5 d-block mx-auto"
+          aria-controls="alternate-forms-collapse"
+          aria-expanded={showAlternates}
+        >
+          {showAlternates ? 'Hide Variants' : 'Show Variants'}
+        </Button>
+      )}
+
+      {/* Alternate Forms Section */}
+      <Collapse in={showAlternates} onEntered={() => alternateFormsRef.current.scrollIntoView({ behavior: 'smooth' })}>
+        <div id="alternate-forms-collapse" ref={alternateFormsRef}>
+          {loadingAlternates && (
+            <div className="mt-3 text-center">
+              <Spinner animation="border" variant={theme === 'light' ? 'dark' : 'light'} />
+              <p>Loading alternate forms...</p>
+            </div>
+          )}
+
+          {alternateForms.length > 0 && (
+            <Row className="mt-5">
+              <Col>
+                <h3 className="text-center mb-4">Alternate Forms</h3>
+                <Row>
+                  <TransitionGroup component={null}>
+                    {alternateForms.map((alt) => (
+                      <CSSTransition key={alt.id} timeout={300} classNames="pokemon-item">
+                        <Col xs={6} sm={4} md={3} lg={3} className="mb-4">
+                          <Card
+                            as={Link}
+                            to={`/pokemon/${alt.id}`}
+                            data-bs-theme={theme}
+                            className="h-100 text-center shadow-sm pokemon-card"
+                          >
+                            <Card.Img
+                              variant="top"
+                              src={alt.sprites.front_default}
+                              alt={alt.name}
+                              className="pokemon-image"
+                            />
+                            <Card.Body>
+                              <Card.Title className="text-center text-capitalize">
+                                {formatPokemonName(alt.name)}
+                              </Card.Title>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      </CSSTransition>
+                    ))}
+                  </TransitionGroup>
+                </Row>
+              </Col>
+            </Row>
+          )}
+        </div>
+      </Collapse>
     </Container>
   );
 };
