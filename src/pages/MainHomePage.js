@@ -1,6 +1,7 @@
 // src/pages/MainHomePage.js
 import React, { useContext, useEffect, useState } from 'react';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { useAuthContext } from '../contexts/AuthContext';
 import { auth } from '../firebase';
 import { getFavoritePokemon, getSearchHistory } from '../services/firestoreService';
 import { Container, Card, Button, Row, Col, Table } from 'react-bootstrap';
@@ -14,12 +15,25 @@ import SearchBar from '../components/SearchBar';
 
 const MainHomePage = () => {
   const { theme } = useContext(ThemeContext);
-  const [user, setUser] = useState(null);
+  const { user, loading } = useAuthContext();
   const [favorites, setFavorites] = useState([]);
   const [searchHistory, setSearchHistory] = useState([]);
   const [featuredPokemon, setFeaturedPokemon] = useState(null);
   const [recommendedPokemon, setRecommendedPokemon] = useState([]);
   const [species, setSpecies] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        const favs = await getFavoritePokemon();
+        const history = await getSearchHistory();
+        setFavorites(favs);
+        setSearchHistory(history);
+      }
+    };
+    
+    fetchUserData();
+  }, [user]);
 
   useEffect(() => {
     const fetchRecommendedPokemon = async () => {
@@ -47,20 +61,6 @@ const MainHomePage = () => {
     }
   }, [featuredPokemon]);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      setUser(currentUser);
-
-      if (currentUser) {
-        const favs = await getFavoritePokemon();
-        const history = await getSearchHistory();
-        setFavorites(favs);
-        setSearchHistory(history);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   useEffect(() => {
     const fetchRandomPokemon = async () => {
@@ -76,10 +76,14 @@ const MainHomePage = () => {
     fetchRandomPokemon();
   }, []);
 
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <Container className={`main-homepage ${theme} mt-5`}>
       {user ? (
-        <h1>Welcome back, {user.displayName}!</h1>
+        <h1>Welcome back, {user.displayName ? user.displayName : 'new user'}!</h1>
       ) : (
         <h1>Welcome to the Pokémon Search Index</h1>
       )}
