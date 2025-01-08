@@ -1,35 +1,24 @@
-// src/components/CustomNavbar.js
+// src/components/Navbar.js
 import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth } from '../firebase';
 import { logOut } from '../services/authService';
 import { Navbar, Nav, Button, Offcanvas } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { useAuthContext } from '../contexts/AuthContext';
 import { FaSun, FaMoon } from 'react-icons/fa';
 
 const CustomNavbar = () => {
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const { user } = useAuthContext();
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
     const handleScroll = () => {
       const offset = window.scrollY;
-      if (offset > 0) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(offset > 0);
     };
 
     window.addEventListener('scroll', handleScroll);

@@ -2,30 +2,30 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Container, Card, Button } from 'react-bootstrap';
 import { getFavoritePokemon, updateUserStatistics } from '../services/firestoreService';
-import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const SelectFeaturedPokemon = () => {
   const [favorites, setFavorites] = useState([]);
-  const auth = getAuth();
   const navigate = useNavigate();
+  const { user } = useAuthContext();
   const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
     const fetchFavorites = async () => {
-      if (auth.currentUser) {
+      if (user) {
         const favs = await getFavoritePokemon();
         setFavorites(favs);
       }
     };
 
     fetchFavorites();
-  }, [auth]);
+  }, [user]);
 
   const handleSelect = async (pokemon) => {
-    if (auth.currentUser) {
-      await updateUserStatistics(auth.currentUser.uid, {
+    if (user) {
+      await updateUserStatistics(user.uid, {
         featuredPokemon: {
           id: pokemon.id,
           name: pokemon.name,
