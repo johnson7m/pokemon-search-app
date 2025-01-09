@@ -1,7 +1,8 @@
 // src/components/SelectFeaturedPokemon.js
 import React, { useState, useEffect, useContext } from 'react';
 import { Container, Card, Button } from 'react-bootstrap';
-import { getFavoritePokemon, updateUserStatistics } from '../services/firestoreService';
+import { getFavoritePokemon } from '../services/firestoreService';
+import { updateUserStats } from '../services/statisticsService';
 import { useNavigate } from 'react-router-dom';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -25,7 +26,7 @@ const SelectFeaturedPokemon = () => {
 
   const handleSelect = async (pokemon) => {
     if (user) {
-      await updateUserStatistics(user.uid, {
+      await updateUserStats(user.uid, {
         featuredPokemon: {
           id: pokemon.id,
           name: pokemon.name,

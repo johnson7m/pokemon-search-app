@@ -17,12 +17,11 @@ import {
 import { saveSearchHistory } from '../services/firestoreService';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useNavigate } from 'react-router-dom';
-import PokemonGrid from './PokemonGrid'; // Ensure this component exists
+import PokemonGrid from './PokemonGrid';
 import { debounce } from 'lodash';
-import './SearchBar.css'; // Ensure this CSS file handles .autocomplete-results
+import './SearchBar.css';
 
 const SearchBar = () => {
-  // State Variables
   const [searchTerm, setSearchTerm] = useState('');
   const [includeAlters, setIncludeAlters] = useState(true);
   const [types, setTypes] = useState([]);
@@ -44,10 +43,8 @@ const SearchBar = () => {
   const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
-  // Cache for Evolution Stages to avoid redundant API calls
   const [evolutionStageCache, setEvolutionStageCache] = useState({});
 
-  // Fetch Types, Abilities, Regions, and All Pokémon on Mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,7 +54,6 @@ const SearchBar = () => {
           axios.get('https://pokeapi.co/api/v2/region'),
           axios.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0'),
         ]);
-
         setTypes(typesRes.data.results);
         setAbilitiesList(abilitiesRes.data.results);
         setRegions(regionsRes.data.results);
@@ -76,7 +72,6 @@ const SearchBar = () => {
 
   const isAlteration = (name) => name.includes('-');
 
-  // Live Search Function with Debouncing
   const liveSearch = useCallback(
     debounce(async (searchValue) => {
       if (searchValue.trim() === '') {
@@ -100,8 +95,27 @@ const SearchBar = () => {
     liveSearch(value);
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      if (autocompleteResults.length > 0) {
+        handleSelectAutocomplete(autocompleteResults[0]);
+      } else {
+        setErrorMessage(
+          'No autocompletion match found. Please refine your search or choose from the dropdown.'
+        );
+      }
+    }
+  };
+
+  // --------------
+  // CRITICAL PART: Also save search if user picks from the autocomplete
+  // --------------
   const handleSelectAutocomplete = async (pokemon) => {
     try {
+      // Save the search so user gets "totalSearches" incremented
+      // and time spent or XP if we choose
+      saveSearchHistory(pokemon.name);
+
       const res = await axios.get(pokemon.url);
       const selectedPokemon = res.data;
       navigate(`/pokemon/${selectedPokemon.id}`, { state: { pokemon: selectedPokemon } });
@@ -111,16 +125,12 @@ const SearchBar = () => {
     }
   };
 
-  // Helper Function to Get Pokémon Names by Region
   const getPokemonNamesByRegion = async (regionName) => {
     try {
       const regionRes = await axios.get(`https://pokeapi.co/api/v2/region/${regionName}`);
       const generationUrl = regionRes.data.main_generation.url;
-
       const generationRes = await axios.get(generationUrl);
       const pokemonSpecies = generationRes.data.pokemon_species;
-
-      // Map species to Pokémon names
       const pokemonNames = pokemonSpecies.map((species) => species.name);
       return pokemonNames;
     } catch (error) {
@@ -130,9 +140,7 @@ const SearchBar = () => {
     }
   };
 
-  // Helper Function to Determine the Evolution Stage of a Pokémon
   const getEvolutionStage = async (pokemonName) => {
-    // Check if the evolution stage is already cached
     if (evolutionStageCache[pokemonName] !== undefined) {
       return evolutionStageCache[pokemonName];
     }
@@ -140,36 +148,28 @@ const SearchBar = () => {
     try {
       const speciesRes = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokemonName}`);
       const evolutionChainUrl = speciesRes.data.evolution_chain.url;
-
       const evolutionRes = await axios.get(evolutionChainUrl);
       const chain = evolutionRes.data.chain;
 
-      // Traverse the evolution chain to assign stages
       const stages = {};
-
       const traverse = (node, stage) => {
         stages[node.species.name] = stage;
         node.evolves_to.forEach((evo) => traverse(evo, stage + 1));
       };
-
       traverse(chain, 1);
 
       const stage = stages[pokemonName] || 1;
-
-      // Update the cache
       setEvolutionStageCache((prevCache) => ({
         ...prevCache,
         [pokemonName]: stage,
       }));
-
       return stage;
     } catch (error) {
       console.error(`Error determining evolution stage for ${pokemonName}:`, error);
-      return 1; // Default to stage 1 if error occurs
+      return 1;
     }
   };
 
-  // Helper Function to Map Stage Number to Label
   const getStageLabel = (stageNumber) => {
     switch (stageNumber) {
       case 1:
@@ -183,7 +183,6 @@ const SearchBar = () => {
     }
   };
 
-  // Advanced Search Handler
   const handleAdvancedSearch = async () => {
     setIsLoading(true);
     setFilteredSearchResults([]);
@@ -194,56 +193,53 @@ const SearchBar = () => {
     let pokemonSet = new Set();
 
     try {
-      // Fetch Pokémon by Type
+      // Filter by Type
       if (selectedType) {
         const response = await axios.get(`https://pokeapi.co/api/v2/type/${selectedType}`);
         response.data.pokemon.forEach((p) => pokemonSet.add(p.pokemon.name));
       }
 
-      // Fetch Pokémon by Ability
+      // Filter by Ability
       if (selectedAbility) {
         const response = await axios.get(`https://pokeapi.co/api/v2/ability/${selectedAbility}`);
         const abilityPokemonNames = response.data.pokemon.map((p) => p.pokemon.name);
         if (pokemonSet.size > 0) {
-          // Intersection
           pokemonSet = new Set([...pokemonSet].filter((name) => abilityPokemonNames.includes(name)));
         } else {
           abilityPokemonNames.forEach((name) => pokemonSet.add(name));
         }
       }
 
-      // Fetch Pokémon by Region
+      // Filter by Region
       if (selectedRegion) {
         const regionPokemonNames = await getPokemonNamesByRegion(selectedRegion);
         if (pokemonSet.size > 0) {
-          // Intersection
           pokemonSet = new Set([...pokemonSet].filter((name) => regionPokemonNames.includes(name)));
         } else {
           regionPokemonNames.forEach((name) => pokemonSet.add(name));
         }
       }
 
-      // Fetch Pokémon by Evolution Stage
+      // Filter by Evolution Stage
       if (selectedEvolutionStage) {
-        const pokemonNamesArray = Array.from(pokemonSet.size > 0 ? pokemonSet : allPokemonList.map((p) => p.name));
-        
-        const stagePromises = pokemonNamesArray.map((name) => 
-          getEvolutionStage(name).catch(() => null)
-      );
+        const pokemonNamesArray = Array.from(
+          pokemonSet.size > 0 ? pokemonSet : allPokemonList.map((p) => p.name)
+        );
+
+        const stagePromises = pokemonNamesArray.map((name) => getEvolutionStage(name).catch(() => null));
         const stages = await Promise.all(stagePromises);
 
-        const filteredByStage = pokemonNamesArray.filter((name, index) =>  {
+        const filteredByStage = pokemonNamesArray.filter((name, index) => {
           return stages[index] === parseInt(selectedEvolutionStage) || stages[index] === null;
         });
-
         pokemonSet = new Set(filteredByStage);
       }
 
+      // Exclude variants if needed
       if (!includeAlters) {
         pokemonSet = new Set([...pokemonSet].filter((name) => !isAlteration(name)));
       }
 
-      // If no filters selected, return empty results
       if (pokemonSet.size === 0) {
         setFilteredPokemonNames([]);
         setFilteredSearchResults([]);
@@ -256,9 +252,10 @@ const SearchBar = () => {
       const allFilteredPokemonNames = Array.from(pokemonSet);
       setFilteredPokemonNames(allFilteredPokemonNames);
 
-      // Fetch the first batch of Pokémon
+      // Fetch the first batch
       await fetchFilteredPokemon(allFilteredPokemonNames, 0);
 
+      // Save the search
       saveSearchHistory(
         `Type: ${selectedType || 'Any'}, Ability: ${selectedAbility || 'Any'}, Evolution Stage: ${
           selectedEvolutionStage ? getStageLabel(selectedEvolutionStage) : 'Any'
@@ -271,7 +268,6 @@ const SearchBar = () => {
     setIsLoading(false);
   };
 
-  // Function to Fetch Filtered Pokémon with Pagination
   const fetchFilteredPokemon = async (pokemonNamesList, currentOffset) => {
     setIsLoading(true);
     const paginatedPokemonNames = pokemonNamesList.slice(currentOffset, currentOffset + 8);
@@ -290,7 +286,6 @@ const SearchBar = () => {
       );
 
       const validPokemons = detailedPokemons.filter((p) => p !== null);
-
       setFilteredSearchResults((prev) => [...prev, ...validPokemons]);
       setOffset(currentOffset + 8);
 
@@ -313,19 +308,18 @@ const SearchBar = () => {
             placeholder="Search Pokémon by name or ID"
             value={searchTerm}
             onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
             aria-label="Search Pokémon by name or ID"
           />
         </InputGroup>
         {autocompleteResults.length > 0 && (
           <ListGroup className="autocomplete-results" role="listbox">
-            {autocompleteResults.map((pokemon, index) => (
+            {autocompleteResults.map((pokemon) => (
               <ListGroup.Item
                 key={pokemon.name}
                 action
                 onClick={() => handleSelectAutocomplete(pokemon)}
-                className={`bg-${theme} ${
-                  theme === 'dark' ? 'text-white' : 'text-dark'
-                }`}
+                className={`bg-${theme} ${theme === 'dark' ? 'text-white' : 'text-dark'}`}
                 role="option"
                 aria-selected="false"
                 tabIndex="0"
@@ -349,7 +343,7 @@ const SearchBar = () => {
         </Alert>
       )}
 
-      {/* Advanced Search Toggle Button */}
+      {/* Advanced Search Toggle */}
       <Button
         variant={theme === 'light' ? 'dark' : 'light'}
         onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
@@ -360,7 +354,7 @@ const SearchBar = () => {
         Advanced Search {showAdvancedSearch ? '▲' : '▼'}
       </Button>
 
-      {/* Advanced Search Collapse */}
+      {/* Advanced Search Section */}
       <Collapse in={showAdvancedSearch}>
         <div id="advanced-search-collapse">
           <Row className="mt-3">
@@ -446,7 +440,7 @@ const SearchBar = () => {
                 )}
               </Form.Group>
             </Col>
-            {/* Alter Toggle */}
+            {/* Include Variants */}
             <Col xs={12}>
               <Form.Check
                 type="switch"
@@ -455,7 +449,7 @@ const SearchBar = () => {
                 checked={includeAlters}
                 onChange={(e) => setIncludeAlters(e.target.checked)}
               />
-            </Col>            
+            </Col>
           </Row>
           {/* Search Button */}
           <Button
@@ -467,7 +461,7 @@ const SearchBar = () => {
             {isLoading ? 'Searching...' : 'Search'}
           </Button>
 
-          {/* Filtered Search Results Within Collapse */}
+          {/* Filtered Search Results */}
           {filteredSearchResults.length > 0 && (
             <div className="mt-4">
               <PokemonGrid pokemonList={filteredSearchResults} theme={theme} />
@@ -484,22 +478,21 @@ const SearchBar = () => {
             </div>
           )}
 
-          {/* Loading Spinner Within Collapse */}
+          {/* Loading Spinner */}
           {isLoading && (
             <div className="mt-4 text-center">
-              <Spinner
-                animation="border"
-                variant={theme === 'light' ? 'dark' : 'light'}
-              />
+              <Spinner animation="border" variant={theme === 'light' ? 'dark' : 'light'} />
             </div>
           )}
 
           {/* No Results Found */}
-          {filteredSearchResults.length === 0 && !isLoading && selectedType && selectedAbility && (
-            <Alert variant="info" className="mt-4">
-              No Pokémon found matching the selected criteria.
-            </Alert>
-          )}
+          {filteredSearchResults.length === 0 &&
+            !isLoading &&
+            (selectedType || selectedAbility || selectedRegion || selectedEvolutionStage) && (
+              <Alert variant="info" className="mt-4">
+                No Pokémon found matching the selected criteria.
+              </Alert>
+            )}
         </div>
       </Collapse>
     </Container>

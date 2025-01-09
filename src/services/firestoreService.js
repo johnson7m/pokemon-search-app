@@ -1,82 +1,114 @@
 // src/services/firestoreService.js
 import { db, auth } from '../firebase';
-import { getFirestore, updateDoc, getDoc, setDoc, collection, addDoc, getDocs, query, where, orderBy, deleteDoc, doc, limit, DocumentSnapshot } from 'firebase/firestore';
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  deleteDoc,
+  doc,
+  limit,
+  increment,
+} from 'firebase/firestore';
 
+// Import addXp or updateUserStats from statisticsService.js
+import { addXp, updateUserStats } from './statisticsService';
 
-
-
-
-// attempting to refactor favorite functions
+/**
+ * Toggle favorite Pokémon for the current user.
+ * If it's newly added, increment totalFavorites and add XP.
+ */
 export const toggleFavoritePokemon = async (pokemon) => {
-    const user = auth.currentUser;
-    if (!user) return;
-  
-    try {
-      const q = query(
-        collection(db, 'favorites'),
-        where('userId', '==', user.uid),
-        where('pokemon.id', '==', pokemon.id) // Use id for simplicity
-      );
-      const querySnapshot = await getDocs(q);
-  
-      if (!querySnapshot.empty) {
-        // If Pokémon is already in favorites, remove it
-        querySnapshot.forEach(async (docSnapshot) => {
-          await deleteDoc(docSnapshot.ref);
-        });
-        return { success: true, message: 'Removed from favorites!' };
-      } else {
-        // If Pokémon is not in favorites, add it
-        const simplifiedPokemon = {
-          name: pokemon.name,
-          id: pokemon.id,
-          sprites: pokemon.sprites,
-          types: pokemon.types.map(typeInfo => typeInfo.type.name),
-        };
-        await addDoc(collection(db, 'favorites'), {
-          userId: user.uid,
-          pokemon: simplifiedPokemon,
-          timestamp: new Date()
-        });
-        return { success: true, message: 'Added to favorites!' };
-      }
-    } catch (error) {
-      console.error('Error toggling favorite Pokemon:', error);
-      return { success: false, message: 'Error updating favorites.' };
-    }
-  };
+  const user = auth.currentUser;
+  if (!user) return;
 
-// Remove from favorites
+  try {
+    const q = query(
+      collection(db, 'favorites'),
+      where('userId', '==', user.uid),
+      where('pokemon.id', '==', pokemon.id)
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      // If Pokémon is already in favorites, remove it
+      querySnapshot.forEach(async (docSnapshot) => {
+        await deleteDoc(docSnapshot.ref);
+      });
+      return { success: true, message: 'Removed from favorites!' };
+    } else {
+      // If Pokémon is not in favorites, add it
+      const simplifiedPokemon = {
+        name: pokemon.name,
+        id: pokemon.id,
+        sprites: pokemon.sprites,
+        types: pokemon.types.map((typeInfo) => typeInfo.type.name),
+      };
+      await addDoc(collection(db, 'favorites'), {
+        userId: user.uid,
+        pokemon: simplifiedPokemon,
+        timestamp: new Date(),
+      });
+
+      // 1) Award XP for favoriting
+      await addXp(user.uid, 15);
+
+      // 2) Increment totalFavorites in userStatistics doc
+      await updateUserStats(user.uid, {
+        totalFavorites: increment(1),
+      });
+
+      return { success: true, message: 'Added to favorites!' };
+    }
+  } catch (error) {
+    console.error('Error toggling favorite Pokemon:', error);
+    return { success: false, message: 'Error updating favorites.' };
+  }
+};
+
+/** Remove from favorites (no XP subtracted by default) */
 export const removeFavoritePokemon = async (pokemonName) => {
-    const user = auth.currentUser;
-    if (!user) return;
+  const user = auth.currentUser;
+  if (!user) return;
 
+  try {
+    const q = query(
+      collection(db, 'favorites'),
+      where('userId', '==', user.uid),
+      where('pokemon.name', '==', pokemonName.name)
+    );
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach(async (DocumentSnapshot) => {
+      await deleteDoc(doc(db, 'favorites', DocumentSnapshot.id));
+    });
+  } catch (error) {
+    console.error('Error removing favorite Pokemon:', error);
+  }
+};
 
-    try {
-        const q = query(
-            collection(db, 'favorites'),
-            where('userId', '==', user.uid),
-            where('pokemon.name', '==', pokemonName.name)
-        );
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (DocumentSnapshot) => {
-            await deleteDoc(doc(db, 'favorites', DocumentSnapshot.id));
-        });
-    } catch (error) {
-        console.error('Error removing favorite Pokemon:', error);
-    }
-}
-
-// Save search history to Firestore
+/** Save search history and optionally award XP or increment stats. */
 export const saveSearchHistory = async (searchTerm) => {
   const user = auth.currentUser;
   if (!user) return;
 
   try {
+    // Save the actual search
     await addDoc(collection(db, 'searchHistory'), {
       userId: user.uid,
-      searchTerm: searchTerm,
-      timestamp: new Date()
+      searchTerm,
+      timestamp: new Date(),
+    });
+
+    // 1) Award XP for searching
+    await addXp(user.uid, 10);
+
+    // 2) Increment totalSearches and totalTimeSpent
+    await updateUserStats(user.uid, {
+      totalSearches: increment(1),
+      // If you consider 0.5 minutes per search, you can do:
+      totalTimeSpent: increment(0.5),
     });
 
     // Prune old search history
@@ -86,24 +118,23 @@ export const saveSearchHistory = async (searchTerm) => {
   }
 };
 
-// Add this function to save search criteria
+/** Save advanced search criteria, etc. */
 export const saveSearchCriteria = async (searchCriteria) => {
-    const user = auth.currentUser;
-    if (!user) return;
-  
-    try {
-      // Save the search criteria to a new "savedSearches" collection
-      await addDoc(collection(db, 'savedSearches'), {
-        userId: user.uid,
-        searchCriteria: searchCriteria,
-        timestamp: new Date(),
-      });
-    } catch (error) {
-      console.error('Error saving search criteria:', error);
-    }
-  };
+  const user = auth.currentUser;
+  if (!user) return;
 
-// pruning search history
+  try {
+    await addDoc(collection(db, 'savedSearches'), {
+      userId: user.uid,
+      searchCriteria,
+      timestamp: new Date(),
+    });
+  } catch (error) {
+    console.error('Error saving search criteria:', error);
+  }
+};
+
+/** Prune old search history beyond 30 items */
 export const pruneOldSearchHistory = async () => {
   const user = auth.currentUser;
   if (!user) return;
@@ -112,15 +143,14 @@ export const pruneOldSearchHistory = async () => {
     const q = query(
       collection(db, 'searchHistory'),
       where('userId', '==', user.uid),
-      orderBy('timestamp', 'desc'),
+      orderBy('timestamp', 'desc')
     );
 
-    const querySnapshot = await getDocs(q); // Use getDocs instead of getDoc
+    const querySnapshot = await getDocs(q);
     const historyItems = querySnapshot.docs;
     const maxSearchHistoryItems = 30;
 
     if (historyItems.length > maxSearchHistoryItems) {
-      // Keep the first maxSearchHistoryItems and delete the rest
       const itemsToDelete = historyItems.slice(maxSearchHistoryItems);
       for (const docSnapshot of itemsToDelete) {
         await deleteDoc(docSnapshot.ref);
@@ -131,9 +161,7 @@ export const pruneOldSearchHistory = async () => {
   }
 };
 
-
-
-// Get search history from Firestore
+/** Retrieve search history from Firestore */
 export const getSearchHistory = async () => {
   const user = auth.currentUser;
   if (!user) return [];
@@ -143,7 +171,7 @@ export const getSearchHistory = async () => {
       collection(db, 'searchHistory'),
       where('userId', '==', user.uid),
       orderBy('timestamp', 'desc'),
-      limit(30), // Limit to 10 entries
+      limit(30)
     );
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map((doc) => doc.data().searchTerm);
@@ -153,46 +181,42 @@ export const getSearchHistory = async () => {
   }
 };
 
-// Save favorite Pokemon to Firestore
+/** Save favorite Pokemon to Firestore (older function—no XP) */
 export const saveFavoritePokemon = async (pokemon) => {
   const user = auth.currentUser;
   if (!user) return;
 
   try {
-
     const q = query(
-        collection(db, 'favorites'),
-        where('userId', '==', user.uid),
-        where('pokemon.name', '==', pokemon.name)
+      collection(db, 'favorites'),
+      where('userId', '==', user.uid),
+      where('pokemon.name', '==', pokemon.name)
     );
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
-        console.log('Pokemon already in favorites!');
-        return;
+      console.log('Pokemon already in favorites!');
+      return;
     }
-
-    //Debug: log data sent
-    console.log('Saving favorite Pokemon:', pokemon);
 
     const simplifiedPokemon = {
-        name: pokemon.name,
-        id: pokemon.id,
-        sprites: pokemon.sprites,
-        types: pokemon.types.map(typeInfo => typeInfo.type.name),
-    }
+      name: pokemon.name,
+      id: pokemon.id,
+      sprites: pokemon.sprites,
+      types: pokemon.types.map((typeInfo) => typeInfo.type.name),
+    };
 
     await addDoc(collection(db, 'favorites'), {
       userId: user.uid,
       pokemon: simplifiedPokemon,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
   } catch (error) {
     console.error('Error saving favorite Pokemon:', error);
   }
 };
 
-// Get favorite Pokemon from Firestore
+/** Retrieve all favorite Pokemon for the user */
 export const getFavoritePokemon = async () => {
   const user = auth.currentUser;
   if (!user) return [];
@@ -201,45 +225,21 @@ export const getFavoritePokemon = async () => {
     const q = query(
       collection(db, 'favorites'),
       where('userId', '==', user.uid),
-      orderBy('timestamp', 'desc'),
+      orderBy('timestamp', 'desc')
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data().pokemon);
+    return querySnapshot.docs.map((doc) => doc.data().pokemon);
   } catch (error) {
     console.error('Error getting favorite Pokemon:', error);
     return [];
   }
 };
 
-
-export const getUserStatistics = async (uid) => {
-  const db = getFirestore();
-  const userStatsRef = doc(db, 'userStatistics', uid);
-  const userStatsSnap = await getDoc(userStatsRef);
-
-  if (userStatsSnap.exists()) {
-    return userStatsSnap.data();
-  } else {
-    // Initialize user statistics document if it doesn't exist
-    const initialStats = {
-      level: 1,
-      title: 'New Trainer',
-      trophies: [],
-      badges: [],
-      quizzesCompleted: 0,
-      teamsBuilt: 0,
-      challengesParticipated: 0,
-      searches: 0,
-      votesCast: 0,
-      featuredPokemon: null,
-    };
-    await setDoc(userStatsRef, initialStats);
-    return initialStats;
-  }
-};
-
-export const updateUserStatistics = async (uid, data) => {
-  const db = getFirestore();
-  const userStatsRef = doc(db, 'userStatistics', uid);
-  await updateDoc(userStatsRef, data);
+export const getFavoritesCount = async (userId) => {
+  const q = query(
+    collection(db, 'favorites'),
+    where('userId', '==', userId)
+  );
+  const snap = await getDocs(q);
+  return snap.size;
 };
