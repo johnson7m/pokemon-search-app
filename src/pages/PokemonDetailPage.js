@@ -20,6 +20,7 @@ import useToast from '../hooks/useToast';
 import axios from 'axios';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useXpContext } from '../contexts/XpContext';
 import './PokemonDetailPage.css'; // Import custom CSS for styling
 import SearchBar from '../components/SearchBar';
 
@@ -35,6 +36,7 @@ const PokemonDetailPage = () => {
   const location = useLocation();
   const params = useParams();
   const navigate = useNavigate();
+
   const {
     showToast,
     toastMessage,
@@ -42,9 +44,11 @@ const PokemonDetailPage = () => {
     setShowToast,
     triggerToast,
   } = useToast();
+
+
   const { user } = useAuthContext();
   const { theme } = useContext(ThemeContext);
-
+  const { xpTrigger } = useXpContext();
   const alternateFormsRef = useRef(null);
 
 
@@ -140,8 +144,11 @@ const PokemonDetailPage = () => {
       return;
     }
     if (!pokemon) return;
-    const result = await toggleFavoritePokemon(pokemon);
+
+    const result = await toggleFavoritePokemon(pokemon, xpTrigger);
+    
     setIsFavorite(!isFavorite);
+
     triggerToast(result.message, result.success ? 'success' : 'danger');
   };
 
@@ -297,7 +304,7 @@ const PokemonDetailPage = () => {
                 <Toast.Body className={`text-white bg-${toastVariant}`}>
                   {toastMessage}
                 </Toast.Body>
-              </Toast>
+              </Toast>            
             </Col>
           </Row>
 
@@ -411,7 +418,7 @@ const PokemonDetailPage = () => {
             </Row>
           )}
         </div>
-      </Collapse>
+      </Collapse>      
     </Container>
   );
 };

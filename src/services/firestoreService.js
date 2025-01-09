@@ -20,7 +20,7 @@ import { addXp, updateUserStats } from './statisticsService';
  * Toggle favorite Pokémon for the current user.
  * If it's newly added, increment totalFavorites and add XP.
  */
-export const toggleFavoritePokemon = async (pokemon) => {
+export const toggleFavoritePokemon = async (pokemon, xpTrigger) => {
   const user = auth.currentUser;
   if (!user) return;
 
@@ -53,7 +53,7 @@ export const toggleFavoritePokemon = async (pokemon) => {
       });
 
       // 1) Award XP for favoriting
-      await addXp(user.uid, 15);
+      await addXp(user.uid, 15, xpTrigger);
 
       // 2) Increment totalFavorites in userStatistics doc
       await updateUserStats(user.uid, {
@@ -89,7 +89,7 @@ export const removeFavoritePokemon = async (pokemonName) => {
 };
 
 /** Save search history and optionally award XP or increment stats. */
-export const saveSearchHistory = async (searchTerm) => {
+export const saveSearchHistory = async (searchTerm, triggerToast) => {
   const user = auth.currentUser;
   if (!user) return;
 
@@ -102,7 +102,7 @@ export const saveSearchHistory = async (searchTerm) => {
     });
 
     // 1) Award XP for searching
-    await addXp(user.uid, 10);
+    await addXp(user.uid, 10, triggerToast);
 
     // 2) Increment totalSearches and totalTimeSpent
     await updateUserStats(user.uid, {

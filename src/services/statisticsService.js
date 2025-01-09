@@ -81,7 +81,7 @@ export const getUserStats = async (userId) => {
  * @param {string} userId - The current user ID
  * @param {number} xpAmount - The amount of XP to add
  */
-export const addXp = async (userId, xpAmount = 0) => {
+export const addXp = async (userId, xpAmount = 0, triggerToast = null) => {
   try {
     const userStatsRef = doc(db, USER_STATS_COLLECTION, userId);
     let userStatsSnap = await getDoc(userStatsRef);
@@ -111,6 +111,8 @@ export const addXp = async (userId, xpAmount = 0) => {
       totalTimeSpent = 0,
     } = currentStats;
 
+    const oldAchievements = [...achievements];
+
     // Add XP
     xp += xpAmount;
 
@@ -130,6 +132,24 @@ export const addXp = async (userId, xpAmount = 0) => {
       totalFavorites,
       totalTimeSpent,
     });
+
+    // 4) Fire toast messages if we have a callback
+    if (triggerToast) {
+      // Let user know they gained XP
+      if (xpAmount > 0) {
+        triggerToast(`+${xpAmount}`, 'xp');
+      }
+
+      // Check for newly unlocked achievements
+      const newlyUnlocked = achievements.filter(
+        (ach) => !oldAchievements.includes(ach)
+      );
+      if (newlyUnlocked.length > 0) {
+        newlyUnlocked.forEach((ach) => {
+          triggerToast(`Achievement unlocked: ${ach}`, 'info');
+        });
+      }
+    }
   } catch (error) {
     console.error('Error adding XP:', error);
   }

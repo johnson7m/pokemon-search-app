@@ -8,6 +8,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { XpProvider } from './contexts/XpContext';
+import { UserStatsProvider } from './contexts/UserStatsContext';
 
 const queryClient = new QueryClient();
 
@@ -16,9 +18,13 @@ root.render(
   <React.StrictMode>
     <ThemeProvider>
       <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <App />
-        </QueryClientProvider>
+        <UserStatsProvider>
+          <XpProvider>
+            <QueryClientProvider client={queryClient}>
+              <App />
+            </QueryClientProvider>
+          </XpProvider>
+        </UserStatsProvider> 
       </AuthProvider>
     </ThemeProvider>
    

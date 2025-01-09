@@ -145,7 +145,7 @@ const AnimatedRoutes = () => {
                 variants={pageVariants}
                 transition={pageTransition}
               >
-                <SearchBar />
+                <SearchBar/>
               </motion.div>
             </Suspense>
           }

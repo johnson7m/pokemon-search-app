@@ -19,6 +19,7 @@ import { ThemeContext } from '../contexts/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import PokemonGrid from './PokemonGrid';
 import { debounce } from 'lodash';
+import { useXpContext } from '../contexts/XpContext';
 import './SearchBar.css';
 
 const SearchBar = () => {
@@ -65,6 +66,8 @@ const SearchBar = () => {
     };
     fetchData();
   }, []);
+
+  const { xpTrigger } = useXpContext();
 
   const formatPokemonName = (name) => {
     return name.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
@@ -114,7 +117,7 @@ const SearchBar = () => {
     try {
       // Save the search so user gets "totalSearches" incremented
       // and time spent or XP if we choose
-      saveSearchHistory(pokemon.name);
+     await saveSearchHistory(pokemon.name, xpTrigger);
 
       const res = await axios.get(pokemon.url);
       const selectedPokemon = res.data;
@@ -255,12 +258,12 @@ const SearchBar = () => {
       // Fetch the first batch
       await fetchFilteredPokemon(allFilteredPokemonNames, 0);
 
-      // Save the search
-      saveSearchHistory(
-        `Type: ${selectedType || 'Any'}, Ability: ${selectedAbility || 'Any'}, Evolution Stage: ${
+      const searchDesc = `Type: ${selectedType || 'Any'}, Ability: ${selectedAbility || 'Any'}, Evolution Stage: ${
           selectedEvolutionStage ? getStageLabel(selectedEvolutionStage) : 'Any'
         }, Region: ${selectedRegion || 'Any'}`
-      );
+
+      // Save the search
+      saveSearchHistory(searchDesc, xpTrigger);
     } catch (error) {
       console.error('Error fetching filtered Pokémon:', error);
       setErrorMessage('An error occurred while fetching filtered Pokémon. Please try again.');
