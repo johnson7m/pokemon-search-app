@@ -1,6 +1,6 @@
 # **Pokémon Search Index**
 
-The **Pokémon Search Index** is a feature-rich web application designed to provide an engaging experience for Pokémon enthusiasts. The app offers advanced search capabilities, personalized user dashboards, global leaderboards, and customizable themes, making it a comprehensive solution for managing and exploring Pokémon data. This is also technically the second version of the original search index I made for my freeCodeCamp certifications **cough cough** it was pretty ugly, but feel free to check it out [here](https://aether-pokemon-search.netlify.app/)
+The **Pokémon Search Index** is a feature-rich web application designed to provide an engaging experience for Pokémon enthusiasts. The app offers advanced search capabilities, personalized user dashboards, global leaderboards, and customizable themes, making it a comprehensive solution for managing and exploring Pokémon data. This is also technically the second version of the original search index I made for my freeCodeCamp certifications **cough cough** it was pretty ugly, but feel free to check it out [here](https://aether-pokemon-search.netlify.app/) 
 
 ## **Features**
 
