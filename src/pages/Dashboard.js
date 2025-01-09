@@ -20,6 +20,7 @@ import { Link } from 'react-router-dom';
 import { getFavoritePokemon } from '../services/firestoreService';
 import { getRecommendedPokemon } from '../services/recommendationService';
 import PokemonCarousel from '../components/PokemonCarousel';
+import LeaderboardWidget from '../components/LeaderboardWidget';
 import './Dashboard.css';
 
 // Example XP threshold function (duplicated from statisticsService.js so we can do live display)
@@ -147,8 +148,8 @@ const Dashboard = () => {
       </Row>
 
       {/* Row 2: XP / Achievements / Badges */}
-      <Row className="mt-4">
-        <Col xs={12}>
+      <Row className="mt-1 g-4">
+        <Col xs={12} md={4} lg={6}>
           <Card className="dashboard-card flex-fill">
             <Card.Body>
               <Card.Title>Progress & Achievements</Card.Title>
@@ -211,7 +212,15 @@ const Dashboard = () => {
             </Card.Body>
           </Card>
         </Col>
-      </Row>
+        <Col xs={12} md={8} lg={6}>
+          {/* We'll place the LeaderboardWidget in a card or just inline */}
+          <Card className="dashboard-card flex-fill">
+            <Card.Body>
+              <LeaderboardWidget />
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>  
     </Container>
   );
 };
