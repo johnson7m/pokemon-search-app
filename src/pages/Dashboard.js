@@ -19,6 +19,7 @@ import { getUserStats } from '../services/statisticsService';
 import { Link } from 'react-router-dom';
 import { getFavoritePokemon } from '../services/firestoreService';
 import { getRecommendedPokemon } from '../services/recommendationService';
+import { syncWaterCounts } from '../adminTools/syncHandlers';
 import PokemonCarousel from '../components/PokemonCarousel';
 import LeaderboardWidget from '../components/LeaderboardWidget';
 import './Dashboard.css';
@@ -34,6 +35,17 @@ const Dashboard = () => {
   const [favorites, setFavorites] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const handleSyncWaterCounts = async () => {
+    try {
+      await syncWaterCounts();
+      alert('Water type sync completed!');
+    } catch (error) {
+      console.error('Error syncing water counts:', error);
+      alert('Failed to sync water counts.');
+    }
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -220,7 +232,7 @@ const Dashboard = () => {
             </Card.Body>
           </Card>
         </Col>
-      </Row>  
+      </Row>
     </Container>
   );
 };

@@ -1,6 +1,6 @@
 // src/components/LeaderboardWidget.js
 import React, { useState, useEffect } from 'react';
-import { Form, Table, Spinner } from 'react-bootstrap';
+import { Form, Table, Spinner, Container } from 'react-bootstrap';
 import {
   getTopFavorites,
   getTopBadges,
@@ -65,13 +65,16 @@ const LeaderboardWidget = () => {
       </Form.Group>
 
       {loading ? (
-        <Spinner animation="border" />
+        <Container className="text-center my-4">
+            <Spinner animation="border" role="status" />
+            <div className="mt-2">Loading...</div>
+        </Container>
       ) : (
         <Table striped bordered hover size="sm">
           <thead>
             <tr>
               <th>Rank</th>
-              <th>User ID</th>
+              <th>User</th>
               {/* The columns can vary based on the type */}
               {/* We'll just show 'favorites' or 'badges' or 'waterCount' etc. */}
               <th>Score</th>
@@ -81,7 +84,7 @@ const LeaderboardWidget = () => {
             {results.length > 0 ? (
               results.map((userData, index) => {
                 // userData might contain { userId, totalFavorites, badgesCount, waterCount, etc.}
-                let score;
+                let score = 0;
                 if (leaderboardType === 'favorites') {
                   score = userData.totalFavorites || 0;
                 } else if (leaderboardType === 'badges') {
@@ -93,7 +96,9 @@ const LeaderboardWidget = () => {
                 return (
                   <tr key={userData.userId}>
                     <td>{index + 1}</td>
-                    <td>{userData.userId}</td>
+                    <td>
+                      {userData.displayName || 'Unknown'}{' '}
+                    </td>
                     <td>{score}</td>
                   </tr>
                 );

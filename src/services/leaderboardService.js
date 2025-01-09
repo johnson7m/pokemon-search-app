@@ -8,11 +8,42 @@ import {
   limit,
   doc,
   getDoc,
-  where,
 } from 'firebase/firestore';
 
 /**
- * Query userStatistics, order by totalFavorites DESC, return top N users
+ * Fetch the displayName from users/{uid}.
+ * If no doc or no displayName, return 'Unknown' or 'NoName'.
+ */
+async function getDisplayName(uid) {
+  const userRef = doc(db, 'users', uid);
+  const snap = await getDoc(userRef);
+  if (snap.exists()) {
+    const data = snap.data();
+    return data.displayName || 'NoName';
+  }
+  return 'Unknown';
+}
+
+/**
+ * Populate an array of userStats objects with displayName from "users/{userId}".
+ * @param {Array} userStatsArray - e.g. [{ userId, totalFavorites, ... }, ...]
+ * @returns {Array} - same array but with { ...userStats, displayName: '...' }
+ */
+async function populateDisplayNames(userStatsArray) {
+  const resultsWithNames = [];
+  for (const userStats of userStatsArray) {
+    const displayName = await getDisplayName(userStats.userId);
+    resultsWithNames.push({
+      ...userStats,
+      displayName,
+    });
+  }
+  return resultsWithNames;
+}
+
+/**
+ * 1) Query userStatistics, order by totalFavorites DESC, return top N users.
+ *    Then fill in displayName.
  */
 export const getTopFavorites = async (topN = 10) => {
   const userStatsRef = collection(db, 'userStatistics');
@@ -23,25 +54,23 @@ export const getTopFavorites = async (topN = 10) => {
   );
   const snapshot = await getDocs(qUserStats);
 
-  // Each doc => doc.id is userId, doc.data() has stats
   const results = [];
   snapshot.forEach((docSnap) => {
     results.push({
-      userId: docSnap.id, // user UID
-      ...docSnap.data(),  // { totalFavorites, xp, level, etc.}
+      userId: docSnap.id, // doc ID is userId
+      ...docSnap.data(),
     });
   });
-  return results; // Array sorted desc by totalFavorites
+
+  // Now fill in displayName for each
+  return await populateDisplayNames(results);
 };
 
 /**
- * Query userStatistics, order by badges.length DESC
- * (You might store badges as an array, so we check .length)
+ * 2) Query userStatistics, order by badgesCount DESC, fill in displayName.
+ *    (Requires a numeric field "badgesCount" in userStatistics doc if you want to sort.)
  */
 export const getTopBadges = async (topN = 10) => {
-  // There's no direct "orderBy array length" in Firestore, so
-  // you might store badgesCount as a numeric field in userStatistics
-  // For demonstration, let's assume there's a "badgesCount" field.
   const userStatsRef = collection(db, 'userStatistics');
   const qUserStats = query(
     userStatsRef,
@@ -57,18 +86,12 @@ export const getTopBadges = async (topN = 10) => {
       ...docSnap.data(),
     });
   });
-  return results;
+
+  return await populateDisplayNames(results);
 };
 
 /**
- * "Water enjoyers": the top users with the greatest number of "water-type" favorites.
- * We'll assume each userStats doc might store waterTypeFavorites: number.
- * OR we can do a more advanced approach:
- *   - Query the 'favorites' collection
- *   - For each user, count how many have "water" in the types
- *   - Then sort + return top N
- *
- * For demonstration, let's assume there's a 'waterCount' field in userStatistics.
+ * 3) "Water enjoyers" => top users with "waterCount" numeric field in userStatistics.
  */
 export const getTopWaterEnjoyers = async (topN = 10) => {
   const userStatsRef = collection(db, 'userStatistics');
@@ -86,5 +109,6 @@ export const getTopWaterEnjoyers = async (topN = 10) => {
       ...docSnap.data(),
     });
   });
-  return results;
+
+  return await populateDisplayNames(results);
 };

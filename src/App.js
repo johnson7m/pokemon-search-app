@@ -2,23 +2,13 @@
 import React, { useContext, useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import CustomNavbar from './components/Navbar';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { ThemeContext } from './contexts/ThemeContext.js';
 import AnimatedRoutes from './components/AnimatedRoutes.js';
 import ToastPortal from './components/ToastPortal.js';
-import useToast from './hooks/useToast.js';
-
 
 function App() {
-
-  const {
-    showToast,
-    toastMessage,
-    toastVariant,
-    setShowToast,
-    triggerToast,
-  } = useToast();
-
+  const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
     const adjustPadding = () => {
@@ -26,7 +16,7 @@ function App() {
       const mainContent = document.querySelector('.main-content');
       if (navbar && mainContent) {
         const navbarHeight = navbar.offsetHeight;
-        mainContent.style.paddingTop = `${navbarHeight}px`
+        mainContent.style.paddingTop = `${navbarHeight}px`;
       }
     };
     adjustPadding();
@@ -36,20 +26,13 @@ function App() {
     };
   }, []);
 
-
-  const {theme} = useContext(ThemeContext);
-
   return (
     <Router>
       <div className={`main-content app ${theme}`}>
-        <CustomNavbar /> 
-        <ToastPortal 
-          showToast={showToast}
-          toastMessage={toastMessage}
-          toastVariant={toastVariant}
-          setShowToast={setShowToast}
-        />
-        <AnimatedRoutes xpTrigger={triggerToast} />
+        <CustomNavbar />
+        {/* This ToastPortal is now fully controlled by XpProvider (XpContext) */}
+        <ToastPortal />
+        <AnimatedRoutes />
       </div>
     </Router>
   );

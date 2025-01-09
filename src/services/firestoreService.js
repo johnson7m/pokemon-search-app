@@ -22,9 +22,13 @@ import { addXp, updateUserStats } from './statisticsService';
  */
 export const toggleFavoritePokemon = async (pokemon, xpTrigger) => {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) {
+    console.log('toggleFavoritePokemon => no currentUser, aborting');
+    return;
+  }
 
   try {
+    console.log('toggleFavoritePokemon => user:', user.uid, 'pokemon:', pokemon.name);
     const q = query(
       collection(db, 'favorites'),
       where('userId', '==', user.uid),
@@ -33,13 +37,15 @@ export const toggleFavoritePokemon = async (pokemon, xpTrigger) => {
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
-      // If Pokémon is already in favorites, remove it
+      // Already in favorites => remove
+      console.log('toggleFavoritePokemon => removing favorite');
       querySnapshot.forEach(async (docSnapshot) => {
         await deleteDoc(docSnapshot.ref);
       });
       return { success: true, message: 'Removed from favorites!' };
     } else {
-      // If Pokémon is not in favorites, add it
+      // Not in favorites => add
+      console.log('toggleFavoritePokemon => adding favorite =>', pokemon.name);
       const simplifiedPokemon = {
         name: pokemon.name,
         id: pokemon.id,
@@ -52,13 +58,23 @@ export const toggleFavoritePokemon = async (pokemon, xpTrigger) => {
         timestamp: new Date(),
       });
 
-      // 1) Award XP for favoriting
+      // 1) Award XP
       await addXp(user.uid, 15, xpTrigger);
 
-      // 2) Increment totalFavorites in userStatistics doc
+      // 2) Increment totalFavorites
       await updateUserStats(user.uid, {
         totalFavorites: increment(1),
       });
+
+      const pokemonTypes = pokemon.types.map((typeInfo) => typeInfo.type.name);
+      console.log('toggleFavoritePokemon => pokemon types:', pokemonTypes);
+      if (pokemonTypes.includes('water')) {
+        console.log('toggleFavoritePokemon => found water type => incrementing waterCount');
+        await updateUserStats(user.uid, {
+          waterCount: increment(1),
+        });
+      }
+      
 
       return { success: true, message: 'Added to favorites!' };
     }
