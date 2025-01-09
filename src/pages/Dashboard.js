@@ -1,15 +1,19 @@
-// src/pages/Dashboard.js
 import React, { useEffect, useState, useContext } from 'react';
 import { Container, Row, Col, Card, Button, Spinner } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { getUserStats } from '../services/statisticService';
+import { Link } from 'react-router-dom';
+import { getFavoritePokemon } from '../services/firestoreService';
 import { getRecommendedPokemon } from '../services/recommendationService';
+import PokemonCarousel from '../components/PokemonCarousel';
+import './Dashboard.css'; // Import custom CSS for dashboard
 
 const Dashboard = () => {
   const { theme } = useContext(ThemeContext);
   const { user } = useAuthContext();
   const [stats, setStats] = useState(null);
+  const [favorites, setFavorites] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,11 +21,16 @@ const Dashboard = () => {
     const fetchData = async () => {
       if (user) {
         try {
-          const userStats = await getUserStats(user.uid);
-          setStats(userStats);
+          const [userStats, userFavorites] = await Promise.all([
+            getUserStats(user.uid),
+            getFavoritePokemon(),
+          ]);
 
-          if (userStats.totalFavorites > 0) {
-            const recommendedPokemon = await getRecommendedPokemon(userStats.favorites || []);
+          setStats(userStats);
+          setFavorites(userFavorites);
+
+          if (userFavorites.length > 0) {
+            const recommendedPokemon = await getRecommendedPokemon(userFavorites);
             setRecommendations(recommendedPokemon);
           }
         } catch (error) {
@@ -54,57 +63,52 @@ const Dashboard = () => {
 
   return (
     <Container data-bs-theme={theme} className="mt-5">
-      <h2>Welcome, {user.displayName || 'Trainer'}!</h2>
+      <h2>{user.displayName || 'New Trainer'}'s Dashboard!</h2>
       <Row className="mt-4">
-        <Col md={6}>
-          <Card>
+        <Col xs={12} sm={12} md={6} lg={6} className="d-flex align-items-stretch">
+            <Card className="dashboard-card flex-fill">
             <Card.Body>
-              <Card.Title>Your Profile Summary</Card.Title>
-              <p>
+                <Card.Title>Your Profile Summary</Card.Title>
+                <p>
                 <strong>Total Searches:</strong> {stats?.totalSearches || 0}
-              </p>
-              <p>
+                </p>
+                <p>
                 <strong>Total Favorites:</strong> {stats?.totalFavorites || 0}
-              </p>
-              <p>
+                </p>
+                <p>
                 <strong>Total Time Spent:</strong> {stats?.totalTimeSpent || 0} minutes
-              </p>
-              <Button variant="primary" href="/profile">
+                </p>
+                <Button
+                data-bs-theme={theme === 'light' ? 'light' : 'dark'}
+                variant="primary"
+                as={Link}
+                to={'/profile'}
+                >
                 Manage Profile
-              </Button>
+                </Button>
             </Card.Body>
-          </Card>
+            </Card>
         </Col>
-        <Col md={6}>
-          <Card>
+        <Col xs={12} sm={12} md={6} lg={6} className="d-flex align-items-stretch">
+            <Card className="dashboard-card flex-fill">
             <Card.Body>
-              <Card.Title>Recommended Pokémon</Card.Title>
-              {recommendations.length > 0 ? (
-                <Row>
-                  {recommendations.map((pokemon) => (
-                    <Col key={pokemon.id} xs={6} sm={4} md={3} lg={2} className="mb-4">
-                      <Card>
-                        <Card.Img
-                          src={pokemon.sprites.front_default}
-                          alt={pokemon.name}
-                          className="img-fluid"
-                        />
-                        <Card.Body>
-                          <Card.Title className="text-center text-capitalize">
-                            {pokemon.name}
-                          </Card.Title>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              ) : (
+                <Card.Title>Recommended Pokémon</Card.Title>
+                {recommendations.length > 0 ? (
+                <PokemonCarousel
+                    pokemonList={recommendations}
+                    theme={theme}
+                    autoCycle={true}
+                    interval={3000}
+                    className="dashboard-carousel"
+                    dashboardMode={true}
+                />
+                ) : (
                 <p>No recommendations available yet. Add more favorites to get suggestions!</p>
-              )}
+                )}
             </Card.Body>
-          </Card>
+            </Card>
         </Col>
-      </Row>
+        </Row>
     </Container>
   );
 };

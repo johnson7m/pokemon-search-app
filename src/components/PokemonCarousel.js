@@ -3,7 +3,7 @@ import { Carousel, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import './PokemonCarousel.css';
 
-const PokemonCarousel = ({ pokemonList, theme }) => {
+const PokemonCarousel = ({ pokemonList, theme, dashboardMode= false}) => {
   const slides = [];
   const [chunkSize, setChunkSize] = useState(3); // Default to 3 cards per slide
 
@@ -14,7 +14,7 @@ const PokemonCarousel = ({ pokemonList, theme }) => {
       } else if (window.innerWidth < 768) {
         setChunkSize(2);
       } else {
-        setChunkSize(3);
+        setChunkSize(dashboardMode ? 2 : 3);
       }
     };
 
@@ -22,7 +22,7 @@ const PokemonCarousel = ({ pokemonList, theme }) => {
     updateChunkSize(); // Initial check
 
     return () => window.removeEventListener('resize', updateChunkSize);
-  }, []);
+  }, [dashboardMode]);
 
   for (let i = 0; i < pokemonList.length; i += chunkSize) {
     const chunk = pokemonList.slice(i, i + chunkSize);
@@ -35,7 +35,7 @@ const PokemonCarousel = ({ pokemonList, theme }) => {
         <Carousel.Item key={index}>
           <Row className="justify-content-center">
             {slide.map((pokemon) => (
-              <Col xs={12} md={4} key={pokemon.id}>
+              <Col xs={12} sm={6} md={dashboardMode ? 6 : 4} lg={dashboardMode ? 6 : 4} key={pokemon.id}>
                 <Card
                   data-bs-theme={theme === 'light' ? 'light' : 'dark'}
                   className="mb-3 text-center"
