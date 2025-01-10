@@ -41,6 +41,7 @@ const SearchBar = () => {
   const [offset, setOffset] = useState(0);
   const [hasMoreResults, setHasMoreResults] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [searchAttempted, setSearchAttempted] = useState(false); // NEW STATE
   const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
@@ -81,12 +82,45 @@ const SearchBar = () => {
         setAutocompleteResults([]);
         return;
       }
-
-      const filteredPokemon = allPokemonList.filter((pokemon) =>
+  
+      let topResults = [];
+      const filteredByName = allPokemonList.filter((pokemon) =>
         pokemon.name.toLowerCase().includes(searchValue.toLowerCase())
       );
-
-      const topResults = filteredPokemon.slice(0, 10);
+  
+      if (!isNaN(searchValue)) {
+        // Convert searchValue to an integer for ID-based comparison
+        const id = parseInt(searchValue, 10);
+  
+        try {
+          // Fetch Pokémon by exact ID and add it to the top of results
+          const pokemonById = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+          if (pokemonById.data) {
+            topResults.push({ name: pokemonById.data.name, url: pokemonById.data.species.url });
+          }
+        } catch (error) {
+          console.warn(`No Pokémon found with exact ID ${searchValue}`);
+        }
+  
+        // Add Pokémon whose IDs start with the search term (e.g., '1' -> '10', '11', etc.)
+        const filteredByIdStart = allPokemonList.filter((pokemon, index) =>
+          index.toString().startsWith(searchValue)
+        );
+  
+        // Add unique Pokémon from filteredByIdStart to topResults
+        filteredByIdStart.forEach((pokemon) => {
+          if (!topResults.some((result) => result.name === pokemon.name)) {
+            topResults.push(pokemon);
+          }
+        });
+      }
+  
+      // Add Pokémon whose names contain the search term, ensuring no duplicates
+      const filteredUniquePokemon = filteredByName.filter(
+        (pokemon) => !topResults.some((result) => result.name === pokemon.name)
+      );
+  
+      topResults = [...topResults, ...filteredUniquePokemon.slice(0, 10)];
       setAutocompleteResults(topResults);
     }, 300),
     [allPokemonList]
@@ -115,12 +149,14 @@ const SearchBar = () => {
   // --------------
   const handleSelectAutocomplete = async (pokemon) => {
     try {
-      // Save the search so user gets "totalSearches" incremented
-      // and time spent or XP if we choose
-     await saveSearchHistory(pokemon.name, xpTrigger);
-
-      const res = await axios.get(pokemon.url);
+      // Fetch full Pokémon data by name or ID (direct URL from autocomplete result)
+      const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon.name}`);
       const selectedPokemon = res.data;
+  
+      // Save the search so user gets XP and search history increment
+      await saveSearchHistory(pokemon.name, xpTrigger);
+  
+      // Navigate to the Pokémon detail page with full data
       navigate(`/pokemon/${selectedPokemon.id}`, { state: { pokemon: selectedPokemon } });
     } catch (error) {
       console.error('Error fetching Pokémon data:', error);
@@ -192,7 +228,7 @@ const SearchBar = () => {
     setOffset(0);
     setHasMoreResults(true);
     setErrorMessage('');
-
+    setSearchAttempted(true);
     let pokemonSet = new Set();
 
     try {
@@ -490,6 +526,7 @@ const SearchBar = () => {
 
           {/* No Results Found */}
           {filteredSearchResults.length === 0 &&
+            searchAttempted &&
             !isLoading &&
             (selectedType || selectedAbility || selectedRegion || selectedEvolutionStage) && (
               <Alert variant="info" className="mt-4">
