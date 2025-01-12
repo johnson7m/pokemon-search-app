@@ -2,7 +2,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuthContext } from '../contexts/AuthContext';
-import { auth } from '../firebase';
 import { getFavoritePokemon, getSearchHistory } from '../services/firestoreService';
 import { Container, Card, Button, Row, Col, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';

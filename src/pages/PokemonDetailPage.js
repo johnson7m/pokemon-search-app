@@ -32,6 +32,7 @@ const PokemonDetailPage = () => {
   const [alternateForms, setAlternateForms] = useState([]);
   const [showAlternates, setShowAlternates] = useState(false);
   const [loadingAlternates, setLoadingAlternates] = useState(false);
+  const [retroMode, setRetroMode] = useState(false);
   const [imageType, setImageType] = useState('classic'); // 'classic' or 'high-res'
   const location = useLocation();
   const params = useParams();
@@ -339,13 +340,23 @@ const PokemonDetailPage = () => {
             </Col>
             {species && (
               <Col xs={12} md={6}>
-                <h3>Description</h3>
-                <p>
-                  {species.flavor_text_entries
-                    .find((entry) => entry.language.name === 'en')
-                    ?.flavor_text.replace(/[\n\f]/g, ' ') ||
-                    'Description not available.'}
-                </p>
+                <h3>Description</h3> 
+                  {retroMode ? 
+                    <p>
+                    {species.flavor_text_entries
+                      .find((entry) => entry.language.name === 'en')
+                      ?.flavor_text.replace(/[\n\f]/g, ' ')
+                      .replace(/pok[eÉ]mon/gi, 'Pokémon')
+                      .replace(/\b[A-Z][A-Z]+\b/g, (word) => formatPokemonName(word.toLowerCase())) 
+                      || 'Description not available.'}
+                  </p> 
+                    : 
+                  <p>
+                    {species.flavor_text_entries
+                      .find((entry) => entry.language.name === 'en')
+                      ?.flavor_text.replace(/[\n\f]/g, ' ') ||
+                      'Description not available.'}
+                  </p>}
               </Col>
             )}
           </Row>
