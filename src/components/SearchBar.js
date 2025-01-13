@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import PokemonGrid from './PokemonGrid';
 import { debounce } from 'lodash';
 import { useXpContext } from '../contexts/XpContext';
+import { usePageContext } from '../contexts/PageContext';
 import './SearchBar.css';
 
 const SearchBar = () => {
@@ -43,6 +44,7 @@ const SearchBar = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [searchAttempted, setSearchAttempted] = useState(false); // NEW STATE
   const { theme } = useContext(ThemeContext);
+  const { pageState, setPageState } = usePageContext();
   const navigate = useNavigate();
 
   const [evolutionStageCache, setEvolutionStageCache] = useState({});
@@ -383,16 +385,48 @@ const SearchBar = () => {
       )}
 
       {/* Advanced Search Toggle */}
-      <Button
-        variant={theme === 'light' ? 'dark' : 'light'}
-        onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-        className="mt-3"
-        aria-controls="advanced-search-collapse"
-        aria-expanded={showAdvancedSearch}
-      >
-        Advanced Search {showAdvancedSearch ? '▲' : '▼'}
-      </Button>
-
+       <Row>
+        <Col xs={12} className="mt-3 d-flex justify-content-left mb-3">
+          <Button
+          variant={theme === 'light' ? 'dark' : 'light'}
+          onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+          className="me-2"
+          aria-controls="advanced-search-collapse"
+          aria-expanded={showAdvancedSearch}
+        >
+          <i className='bi bi-search'></i>
+          <span className='d-none d-md-inline'> Advanced Search </span> 
+          {showAdvancedSearch ? '▲' : '▼'}
+        </Button>
+        <Button
+            variant={theme === 'light' ? 'dark' : 'light'}
+            active={pageState === 'home'}
+            onClick={() => setPageState('home')}
+            className='me-2'
+          >
+            <i className='bi bi-house'></i>
+            <span className='d-none d-md-inline'> Home</span> 
+          </Button>
+          <Button
+            variant={theme === 'light' ? 'dark' : 'light'}
+            active={pageState === 'dashboard'}
+            onClick={() => setPageState('dashboard')}
+            className='me-2'
+          >
+            <i className='bi bi-bar-chart'></i>
+            <span className='d-none d-md-inline'> Dashboard</span> 
+          </Button>
+          <Button
+            variant={theme === 'light' ? 'dark' : 'light'}
+            active={pageState === 'pokemon'}
+            onClick={() => setPageState('pokemon')}
+            className='me-2'
+          >
+            <i className='bi bi-collection'></i>
+            <span className='d-none d-md-inline'> Pokémon</span> 
+          </Button>
+        </Col>
+       </Row>
       {/* Advanced Search Section */}
       <Collapse in={showAdvancedSearch}>
         <div id="advanced-search-collapse">
