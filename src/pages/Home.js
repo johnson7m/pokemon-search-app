@@ -1,6 +1,6 @@
 // src/pages/Home.js
 import React, { useContext, useEffect, useState } from 'react';
-import { Container, Card, Button, Row, Col, Table } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { usePokemonContext } from '../contexts/PokemonContext';
@@ -9,7 +9,6 @@ import axios from 'axios';
 import NewsSection from '../components/NewsSection'
 import { getRecommendedPokemon } from '../services/recommendationService';
 import PokemonCarousel from '../components/PokemonCarousel';
-import { Link } from 'react-router-dom';
 import FeaturedPokemon from '../components/FeaturedPokemon';
 
 const Home = () => {

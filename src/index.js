@@ -11,26 +11,28 @@ import { PageProvider } from './contexts/PageContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { XpProvider } from './contexts/XpContext';
 import { UserStatsProvider } from './contexts/UserStatsContext';
+import { LoadingProvider } from './contexts/LoadingContext';
 
 const queryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <ThemeProvider>
-      <AuthProvider>
-        <UserStatsProvider>
-          <PageProvider>
-            <XpProvider>
-              <QueryClientProvider client={queryClient}>
-                <App />
-              </QueryClientProvider>
-            </XpProvider>
-          </PageProvider>
-        </UserStatsProvider> 
-      </AuthProvider>
-    </ThemeProvider>
-   
+    <LoadingProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <UserStatsProvider>
+              <PageProvider>
+                <XpProvider>
+                    <QueryClientProvider client={queryClient}>
+                      <App />
+                    </QueryClientProvider>
+                </XpProvider>
+              </PageProvider>
+          </UserStatsProvider> 
+        </AuthProvider>
+      </ThemeProvider>
+    </LoadingProvider>
   </React.StrictMode>
 );
 

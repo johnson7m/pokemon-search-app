@@ -394,7 +394,7 @@ const SearchBar = () => {
           aria-controls="advanced-search-collapse"
           aria-expanded={showAdvancedSearch}
         >
-          <i className='bi bi-search'></i>
+          <i className='bi bi-search'> </i>
           <span className='d-none d-md-inline'> Advanced Search </span> 
           {showAdvancedSearch ? '▲' : '▼'}
         </Button>
