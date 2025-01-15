@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Container, Card, Button, Row, Col, Table, Spinner } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { usePokemonContext } from '../contexts/PokemonContext';
@@ -20,25 +20,30 @@ const FeaturedPokemon = () => {
   const { featuredPokemon, setFeaturedPokemon } = usePokemonContext();
   const [species, setSpecies] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isContentReady, setIsContentReady] = useState(false); // New flag for readiness
+  const [isContentReady, setIsContentReady] = useState(false);
   const [error, setError] = useState(null);
+
+  const isFetchingRef = useRef(false); // Prevent multiple fetches
 
   useEffect(() => {
     const fetchPokemonAndSpecies = async () => {
+      if (isFetchingRef.current) return; // Prevent multiple concurrent fetches
+      isFetchingRef.current = true;
+
       setIsLoading(true);
-      setIsContentReady(false); // Reset content readiness
+      setIsContentReady(false);
       setError(null);
 
       const randomId = Math.floor(Math.random() * 898) + 1;
       try {
         const cachedData = await getPokemonFromCache(randomId);
-        if (cachedData?.pokemonData && cachedData.speciesData) {
-          setFeaturedPokemon(cachedData.pokemonData);
+
+        if (cachedData) {
+          setFeaturedPokemon(cachedData);
           setSpecies(cachedData.speciesData);
           console.log(`FeaturedPokemon: Loaded Pokémon ID ${randomId} from cache.`);
         } else {
-          await deletePokemonFromCache(randomId);
-          console.warn(`FeaturedPokemon: Invalid cache for Pokémon ID ${randomId}. Refetching.`);
+          console.log(`FeaturedPokemon: No valid cache for Pokémon ID ${randomId}, fetching from API.`);
           await fetchFromAPI(randomId);
         }
       } catch (err) {
@@ -46,7 +51,8 @@ const FeaturedPokemon = () => {
         setError('Failed to load featured Pokémon. Please try again.');
       } finally {
         setIsLoading(false);
-        setIsContentReady(true); // Mark content as ready after fetching
+        setIsContentReady(true);
+        isFetchingRef.current = false;
       }
     };
 
@@ -80,14 +86,13 @@ const FeaturedPokemon = () => {
     };
 
     fetchPokemonAndSpecies();
-  }, [setFeaturedPokemon]);
+  }, []); // Empty dependency array ensures it only runs once on mount
 
   // Render loading state
   if (isLoading) {
     return (
       <Container>
         <section className="mt-5">
-          <h2>Featured Pokémon</h2>
           <div className="text-center mt-4">
             <Spinner animation="border" variant={theme === 'light' ? 'dark' : 'light'} />
             <p>Loading featured Pokémon...</p>
@@ -125,6 +130,7 @@ const FeaturedPokemon = () => {
   // Render featured Pokémon only when content is ready
   return (
     <Container>
+    <h2>Featured Pokémon</h2>
       {isContentReady && (
         <motion.section
           className="mt-5"
@@ -134,7 +140,7 @@ const FeaturedPokemon = () => {
           exit="exit"
           transition={{ duration: 0.3 }}
         >
-          <h2>Featured Pokémon</h2>
+
           <Card data-bs-theme={theme === 'light' ? 'light' : 'dark'} className="mb-3 featured-pokemon">
             <Card.Body>
               <Row className="align-items-center">

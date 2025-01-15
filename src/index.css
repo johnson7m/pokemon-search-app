@@ -27,6 +27,9 @@ body {
   background: var(--background-color) !important;
   color: var(--text-color) !important;
   transition: background-color 0.3s, color 0.3s;
+  overflow-y: scroll;
+  height: 100vh;
+
 }
 
 body {
@@ -46,6 +49,24 @@ code {
 
 .main-content {
   padding-top: 56px; /* Adjust as necessary */
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.8);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 @media (max-width: 576px) {

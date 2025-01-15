@@ -28,7 +28,7 @@ function App() {
 
   return (
     <Router>
-      <div className={`main-content app ${theme}`}>
+      <div className={`main-content ${theme}`}>
         <CustomNavbar />
         {/* This ToastPortal is now fully controlled by XpProvider (XpContext) */}
         <ToastPortal />
