@@ -86,7 +86,7 @@ const AnimatedRoutes = () => {
           element={
             <Suspense
               fallback={
-                <LoadingOverlay
+                <LoadingOverlay 
                   type="spinner"
                   message="Loading Main Home Page..."
                 />

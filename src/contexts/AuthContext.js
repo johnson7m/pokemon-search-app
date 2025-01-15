@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   if (loading) {
-    return <LoadingOverlay type="spinner" />;
+    return <LoadingOverlay type="spinner" message="Authenticating..." />;
   }
 
   return (

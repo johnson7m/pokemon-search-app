@@ -4,6 +4,7 @@ import ContentLoader from 'react-content-loader';
 import { Row, Col } from 'react-bootstrap';
 
 const PokemonGridSkeleton = () => (
+
   <Row>
     {[...Array(8)].map((_, index) => (
       <Col xs={6} sm={4} md={3} lg={3} key={index} className="mb-4">

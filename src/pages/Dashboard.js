@@ -23,13 +23,17 @@ import { syncWaterCounts } from '../adminTools/syncHandlers';
 import PokemonCarousel from '../components/PokemonCarousel';
 import LeaderboardWidget from '../components/LeaderboardWidget';
 import './Dashboard.css';
+import { motion } from 'framer-motion';
+import { usePageContext } from '../contexts/PageContext';
 
 // Example XP threshold function (duplicated from statisticsService.js so we can do live display)
 const xpNeededForLevel = (lvl) => (lvl <= 1 ? 0 : 100 * (lvl - 1) ** 2);
 
+
 const Dashboard = () => {
   const { theme } = useContext(ThemeContext);
   const { user } = useAuthContext();
+  const { pageState, setPageContext } = usePageContext();
 
   const [stats, setStats] = useState(null);
   const [favorites, setFavorites] = useState([]);

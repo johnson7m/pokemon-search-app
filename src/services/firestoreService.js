@@ -12,6 +12,8 @@ import {
   limit,
   increment,
 } from 'firebase/firestore';
+import { logFirestoreRequest } from '../utils/firestoreLogger';
+import { rateLimit } from '../utils/rateLimiter';
 
 // Import addXp or updateUserStats from statisticsService.js
 import { addXp, updateUserStats } from './statisticsService';
@@ -238,15 +240,18 @@ export const getFavoritePokemon = async () => {
   if (!user) return [];
 
   try {
-    const q = query(
-      collection(db, 'favorites'),
-      where('userId', '==', user.uid),
-      orderBy('timestamp', 'desc')
-    );
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => doc.data().pokemon);
+    const key = `getFavoritePokemon_${user.uid}`;
+    return await rateLimit(async () => {
+      const q = query(
+        collection(db, 'favorites'),
+        where('userId', '==', user.uid),
+        orderBy('timestamp', 'desc')
+      );
+      const querySnapshot = await logFirestoreRequest('getDocs', q);
+      return querySnapshot.docs.map((doc) => doc.data().pokemon);
+    }, key);
   } catch (error) {
-    console.error('Error getting favorite Pokemon:', error);
+    console.error('Error getting favorite Pokémon:', error);
     return [];
   }
 };
