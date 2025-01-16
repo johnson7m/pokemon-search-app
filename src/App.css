@@ -1,8 +1,40 @@
 
-html {
-    scroll-behavior: smooth;
+html, body {
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+  height: 100vh;
+  margin: 0;
 }
 
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  transition: opacity 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.8);
+
+}
+
+  /* Auto-hide scrollbar */
+  ::-webkit-scrollbar {
+    opacity: 1; /* Always visible initially */
+  }
+  
+  html:not(:hover) ::-webkit-scrollbar {
+    opacity: 0; /* Hide scrollbar when not hovering */
+  }
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 
 
 /* src/App.css */
@@ -47,26 +79,4 @@ ul {
 }
 
 
-/* Ensure the scrollbar is always present */
-.app {
-  overflow-y: scroll;
-  height: 100vh;
-}
 
-/* Custom scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(100, 100, 100, 0.6);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 100, 100, 0.8);
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
