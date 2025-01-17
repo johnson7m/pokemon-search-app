@@ -1,20 +1,18 @@
-// src/components/PokemonGrid.js
 import React, { memo } from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { AnimatePresence, motion } from 'framer-motion';
 import PokemonGridSkeleton from './PokemonGridSkeleton';
-import './PokemonGrid.css';
+import { usePokemonContext } from '../contexts/PokemonContext';
+import './PokemonGrid.css'; // For any other styles
+
 
 const PokemonGridBase = ({ pokemonList, theme, isLoading }) => {
-  console.log('[PokemonGrid] Rendering with:', {
-    isLoading,
-    pokemonListLength: pokemonList.length,
-    theme,
-  });
+
+  const { selectPokemon } = usePokemonContext();
+  
+
 
   if (isLoading && pokemonList.length === 0) {
-    console.log('[PokemonGrid] Showing skeleton because isLoading + empty list.');
     return <PokemonGridSkeleton />;
   }
 
@@ -23,26 +21,28 @@ const PokemonGridBase = ({ pokemonList, theme, isLoading }) => {
 
   return (
     <div style={{ position: 'relative' }}>
-
       <Row>
-        <TransitionGroup component={null}>
+        <AnimatePresence>
           {pokemonList.map((pokemon) => {
             const spriteUrl =
               pokemon?.sprites?.other?.['official-artwork']?.front_default ||
               pokemon?.sprites?.front_default ||
               '';
 
-            console.log(
-              `[PokemonGrid] Pokemon ID ${pokemon.id}, Name: ${pokemon.name}`,
-              pokemon
-            );
-
             return (
-              <CSSTransition key={pokemon.id} timeout={300} classNames="pokemon-item">
-                <Col xs={6} sm={4} md={3} lg={3} className="mb-4">
+                <Col xs={6} sm={4} md={3} lg={3} className="mb-4"
+                as={motion.div}
+                key={pokemon.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                >
                   <Card
-                    as={Link}
-                    to={`/pokemon/${pokemon.id}`}
+                    onClick={() => {
+                      selectPokemon(pokemon);
+                    }}
                     data-bs-theme={theme}
                     className="h-100 text-center shadow-sm pokemon-card"
                   >
@@ -52,9 +52,7 @@ const PokemonGridBase = ({ pokemonList, theme, isLoading }) => {
                       alt={pokemon.name}
                       className="pokemon-image"
                       onError={(e) => {
-                        console.warn(
-                          `[PokemonGrid] Sprite failed for "${pokemon.name}". Using fallback.`
-                        );
+                        console.warn(`Sprite failed for ${pokemon.name}, using fallback.`);
                         e.currentTarget.src = '/fallback-pokemon.png';
                       }}
                     />
@@ -65,16 +63,13 @@ const PokemonGridBase = ({ pokemonList, theme, isLoading }) => {
                     </Card.Body>
                   </Card>
                 </Col>
-              </CSSTransition>
             );
           })}
-        </TransitionGroup>
+        </AnimatePresence>
       </Row>
     </div>
   );
 };
 
-// Wrap in React.memo, so it only re-renders if pokemonList or props changed
 export const PokemonGrid = memo(PokemonGridBase);
-
 export default PokemonGrid;

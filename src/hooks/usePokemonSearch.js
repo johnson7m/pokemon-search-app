@@ -87,7 +87,7 @@ const skipKeywords = [
   }
   
 
-export function usePokemonSearch(xpTrigger, navigate) {
+export function usePokemonSearch(xpTrigger) {
   // Basic search
   const [allPokemonList, setAllPokemonList] = useState([]);
   const [autocompleteResults, setAutocompleteResults] = useState([]);
@@ -147,7 +147,10 @@ export function usePokemonSearch(xpTrigger, navigate) {
         if (isNumeric) {
           const pokemonById = await getPokemonByIdOrName(inputValue);
           if (pokemonById) {
-            results.push({ name: pokemonById.name, url: pokemonById.species?.url });
+            results.push({ 
+                name: pokemonById.name, 
+                url: pokemonById.species?.url 
+            });
           }
         } else {
           // Filter from partial allPokemonList
@@ -175,10 +178,12 @@ export function usePokemonSearch(xpTrigger, navigate) {
       const selectedPokemon = await getPokemonByIdOrName(pokemon.name);
       if (!selectedPokemon) {
         setErrorMessage(`No Pokémon data found for "${pokemon.name}".`);
-        return;
+        return null;
       }
       await saveSearchHistory(selectedPokemon.name, xpTrigger);
-      navigate(`/pokemon/${selectedPokemon.id}`, { state: { pokemon: selectedPokemon } });
+
+      setAutocompleteResults([]);
+      return selectedPokemon;
     } catch (error) {
       console.error('[usePokemonSearch] Error fetching Pokémon details:', error);
       setErrorMessage('Failed to load Pokémon details.');

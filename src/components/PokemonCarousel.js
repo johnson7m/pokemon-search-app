@@ -4,6 +4,8 @@ import { Carousel, Row, Col, Card, Button, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import './PokemonCarousel.css';
+import { usePokemonContext } from '../contexts/PokemonContext';
+import { usePageContext } from '../contexts/PageContext';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -11,6 +13,7 @@ const cardVariants = {
 };
 
 const PokemonCarousel = ({ pokemonList, theme, dashboardMode = false }) => {
+  const { selectPokemon } = usePokemonContext();
   const [chunkSize, setChunkSize] = useState(3); // Default to 3 cards per slide
   const [isLoading, setIsLoading] = useState(true);
   const [slides, setSlides] = useState([]);
@@ -50,6 +53,7 @@ const PokemonCarousel = ({ pokemonList, theme, dashboardMode = false }) => {
     return <p>No Pokémon available to display.</p>;
   }
 
+
   return (
     <Carousel indicators={false}>
       {slides.map((slide, index) => (
@@ -69,6 +73,11 @@ const PokemonCarousel = ({ pokemonList, theme, dashboardMode = false }) => {
                   >
                     <Card.Img
                       variant="top"
+                      onClick={() => {
+                        selectPokemon(pokemon);
+                        console.log('Pokemon data:', pokemon);
+
+                      }}
                       src={pokemon.sprites.front_default}
                       alt={pokemon.name}
                       className="mx-auto"
@@ -78,13 +87,6 @@ const PokemonCarousel = ({ pokemonList, theme, dashboardMode = false }) => {
                       <Card.Title className="text-capitalize">
                         {pokemon.name}
                       </Card.Title>
-                      <Button
-                        as={Link}
-                        to={`/pokemon/${pokemon.id}`}
-                        variant="secondary"
-                      >
-                        View Details
-                      </Button>
                     </Card.Body>
                   </Card>
                 </motion.div>

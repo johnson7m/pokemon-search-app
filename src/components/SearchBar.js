@@ -14,18 +14,18 @@ import {
   Alert,
 } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { useNavigate } from 'react-router-dom';
 import { useXpContext } from '../contexts/XpContext';
 import { usePageContext } from '../contexts/PageContext';
 import PokemonGrid from './PokemonGrid';
 import { usePokemonSearch } from '../hooks/usePokemonSearch';
+import { usePokemonContext } from '../contexts/PokemonContext';
 import './SearchBar.css';
 
 const SearchBar = () => {
   const { theme } = useContext(ThemeContext);
   const { xpTrigger } = useXpContext();
   const { pageState, setPageState } = usePageContext();
-  const navigate = useNavigate();
+  const { selectPokemon } = usePokemonContext();
 
   const {
     searchTerm,
@@ -39,13 +39,12 @@ const SearchBar = () => {
     filteredSearchResults,
     hasMoreResults,
     offset,
-    // New or existing:
     handleInputChange,
     handleSelectAutocomplete,
     handleAdvancedSearch,  // We'll ensure this includes evolution logic
     fetchFilteredPokemon,
     setErrorMessage,
-  } = usePokemonSearch(xpTrigger, navigate);
+  } = usePokemonSearch(xpTrigger);
 
   // Local states for advanced filters
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
@@ -55,15 +54,33 @@ const SearchBar = () => {
   const [selectedEvolutionStage, setSelectedEvolutionStage] = useState('');  // reintroduce
   const [includeAlters, setIncludeAlters] = useState(true);
 
-  const handleKeyDown = (e) => {
+  const [showAutoComplete, setShowAutoComplete] = useState(false);
+
+  const handleKeyDown = async (e) => {
     if (e.key === 'Enter') {
       if (autocompleteResults.length > 0) {
-        handleSelectAutocomplete(autocompleteResults[0]);
+        const selected = await handleSelectAutocomplete(autocompleteResults[0]);
+        if (selected) {
+          selectPokemon(selected);
+          setPageState('pokemonDetail');
+          setShowAutoComplete(false);
+        }
       } else {
         setErrorMessage('No autocompletion match found. Please refine your search.');
       }
     }
   };
+
+    /** The user clicked one of the autocomplete items in the list */
+    const handleAutocompleteClick = async (pokemonItem) => {
+      const selected = await handleSelectAutocomplete(pokemonItem);
+      if (selected) {
+        selectPokemon(selected);
+        setPageState('pokemonDetail');
+        setShowAutoComplete(false);
+      }
+    };
+  
 
   const formatPokemonName = (name) =>
     name.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
@@ -86,18 +103,22 @@ const SearchBar = () => {
           <FormControl
             placeholder="Search Pokémon by name or ID"
             value={searchTerm}
-            onChange={(e) => handleInputChange(e.target.value)}
+            onChange={(e) => {
+              handleInputChange(e.target.value);
+              setShowAutoComplete(true);
+            }}
             onKeyDown={handleKeyDown}
             aria-label="Search Pokémon by name or ID"
           />
         </InputGroup>
-        {autocompleteResults.length > 0 && (
-          <ListGroup className="autocomplete-results">
+        {showAutoComplete && autocompleteResults.length > 0 && (
+          <ListGroup className="autocomplete-results" >
             {autocompleteResults.map((pokemon) => (
               <ListGroup.Item
                 key={pokemon.name}
                 action
-                onClick={() => handleSelectAutocomplete(pokemon)}
+                onClick={() => handleAutocompleteClick(pokemon)}
+                className={`bg-${theme} ${theme === 'dark' ? 'text-white' : 'text-dark'}`}
               >
                 {formatPokemonName(pokemon.name)}
               </ListGroup.Item>

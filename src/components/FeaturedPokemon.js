@@ -18,7 +18,7 @@ const variants = {
 
 const FeaturedPokemon = () => {
   const { theme } = useContext(ThemeContext);
-  const { featuredPokemon, setFeaturedPokemon } = usePokemonContext();
+  const { featuredPokemon, setFeaturedPokemon, selectPokemon  } = usePokemonContext();
   const [species, setSpecies] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isContentReady, setIsContentReady] = useState(false);
@@ -205,7 +205,9 @@ const FeaturedPokemon = () => {
                   </tbody>
                 </Table>
 
-                <Button as={Link} to={`/pokemon/${featuredPokemon.id}`} variant="secondary" className="mt-3">
+                <Button onClick={() => {
+                  selectPokemon(featuredPokemon);
+                }}variant="secondary" className="mt-3">
                   View Details
                 </Button>
 

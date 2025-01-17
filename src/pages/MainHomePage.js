@@ -1,5 +1,5 @@
 // src/pages/MainHomePage.js
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,6 +10,7 @@ import "./MainHomePage.css";
 import { usePageContext } from '../contexts/PageContext';
 import { PokemonProvider } from '../contexts/PokemonContext';
 import FeaturedPokemon from '../components/FeaturedPokemon';
+import PokemonDetailPage from './PokemonDetailPage';
 
 const variants = {
   initial: { opacity: 0, y: 20 },
@@ -19,7 +20,7 @@ const variants = {
 
 const MainHomePage = () => {
   const { theme } = useContext(ThemeContext);
-  const { pageState } = usePageContext();
+  const { pageState, setPageState } = usePageContext();
 
   const renderSelectedContent = () => {
     switch (pageState) {
@@ -29,6 +30,10 @@ const MainHomePage = () => {
         return <Dashboard key="dashboard" />;
       case 'pokemon':
         return <FeaturedPokemon section="mainFeaturedPokemon" key="pokemon" />;
+      case 'pokemonDetail':
+        return (
+          <PokemonDetailPage key="pokemonDetail" />
+        );
       default:
         return <Home key="home" />;
     }
@@ -38,7 +43,7 @@ const MainHomePage = () => {
     <PokemonProvider>
       <Container data-bs-theme={theme} className="mt-5">
         {/* Persistent Search */}
-        <SearchBar />
+        <SearchBar/>
 
         {/* AnimatePresence handles mounting and unmounting animations */}
         <AnimatePresence mode="wait">
