@@ -163,7 +163,7 @@ export function usePokemonSearch(xpTrigger) {
       } catch (error) {
         console.error('[usePokemonSearch] Error during live search:', error);
       }
-    }, 300),
+    }, 50),
     [allPokemonList]
   );
 
