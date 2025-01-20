@@ -160,14 +160,6 @@ const CustomNavbar = () => {
                 <Nav.Link
                   style={{ color: theme === 'light' ? 'black' : 'white' }}
                   as={Link}
-                  to="/dashboard"
-                  onClick={handleClose}
-                >
-                  Dashboard
-                </Nav.Link>
-                <Nav.Link
-                  style={{ color: theme === 'light' ? 'black' : 'white' }}
-                  as={Link}
                   to="/profile"
                   onClick={handleClose}
                 >

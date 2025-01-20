@@ -71,6 +71,13 @@ const SearchBar = () => {
     }
   };
 
+
+    const handleGridSelect = async (pokemon) => {
+      selectPokemon(pokemon);
+      setPageState('pokemonDetail');
+      setShowAdvancedSearch(false);
+    }
+
     /** The user clicked one of the autocomplete items in the list */
     const handleAutocompleteClick = async (pokemonItem) => {
       const selected = await handleSelectAutocomplete(pokemonItem);
@@ -293,6 +300,7 @@ const SearchBar = () => {
                 pokemonList={filteredSearchResults}
                 theme={theme}
                 isLoading={isLoading} // pass if needed
+                onPokemonSelect={handleGridSelect}
               />
               {hasMoreResults && (
                 <Button

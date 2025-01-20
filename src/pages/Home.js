@@ -110,11 +110,7 @@ const Home = () => {
 
   return (
     <Container className={`home-content ${theme} mt-5`}>
-      {user ? (
-        <h1>Welcome back, {user.displayName || 'Trainer'}!</h1>
-      ) : (
-        <h1>Welcome to the Pokémon Search Index</h1>
-      )}
+
 
       {isContentReady && (
         <motion.div

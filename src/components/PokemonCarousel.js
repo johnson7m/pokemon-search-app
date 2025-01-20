@@ -1,11 +1,9 @@
 // src/components/PokemonCarousel.js
 import React, { useState, useEffect } from 'react';
-import { Carousel, Row, Col, Card, Button, Spinner } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Carousel, Row, Col, Card } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import './PokemonCarousel.css';
 import { usePokemonContext } from '../contexts/PokemonContext';
-import { usePageContext } from '../contexts/PageContext';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -57,10 +55,10 @@ const PokemonCarousel = ({ pokemonList, theme, dashboardMode = false }) => {
   return (
     <Carousel indicators={false}>
       {slides.map((slide, index) => (
-        <Carousel.Item key={index}>
+        <Carousel.Item key={index} >
           <Row className="justify-content-center">
             {slide.map((pokemon) => (
-              <Col xs={12} sm={6} md={dashboardMode ? 6 : 4} lg={dashboardMode ? 6 : 4} key={pokemon.id}>
+              <Col  xs={12} sm={6} md={dashboardMode ? 6 : 4} lg={dashboardMode ? 6 : 4} key={pokemon.id}>
                 <motion.div
                   initial="hidden"
                   animate="visible"
@@ -69,25 +67,29 @@ const PokemonCarousel = ({ pokemonList, theme, dashboardMode = false }) => {
                 >
                   <Card
                     data-bs-theme={theme === 'light' ? 'light' : 'dark'}
-                    className="mb-3 text-center"
+                    className="text-center pokemon-card1 shadow"
                   >
-                    <Card.Img
-                      variant="top"
-                      onClick={() => {
-                        selectPokemon(pokemon);
-                        console.log('Pokemon data:', pokemon);
+                    <div
+                      className='pokemon-card-inner'
+                    >
+                      <Card.Img
+                        variant="top"
+                        onClick={() => {
+                          selectPokemon(pokemon);
+                          console.log('Pokemon data:', pokemon);
 
-                      }}
-                      src={pokemon.sprites.front_default}
-                      alt={pokemon.name}
-                      className="mx-auto"
-                      style={{ width: '150px' }}
-                    />
-                    <Card.Body>
-                      <Card.Title className="text-capitalize">
-                        {pokemon.name}
-                      </Card.Title>
-                    </Card.Body>
+                        }}
+                        src={pokemon.sprites.front_default}
+                        alt={pokemon.name}
+                        className="mx-auto"
+                        style={{ maxWidth: '150px' }}
+                      />
+                      <Card.Body>
+                        <Card.Title className="text-capitalize">
+                          {pokemon.name}
+                        </Card.Title>
+                      </Card.Body>
+                    </div>
                   </Card>
                 </motion.div>
               </Col>

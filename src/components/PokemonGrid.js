@@ -6,7 +6,7 @@ import { usePokemonContext } from '../contexts/PokemonContext';
 import './PokemonGrid.css'; // For any other styles
 
 
-const PokemonGridBase = ({ pokemonList, theme, isLoading }) => {
+const PokemonGridBase = ({ pokemonList, theme, isLoading, onPokemonSelect }) => {
 
   const { selectPokemon } = usePokemonContext();
   
@@ -41,7 +41,7 @@ const PokemonGridBase = ({ pokemonList, theme, isLoading }) => {
                 >
                   <Card
                     onClick={() => {
-                      selectPokemon(pokemon);
+                      onPokemonSelect?.(pokemon);
                     }}
                     data-bs-theme={theme}
                     className="h-100 text-center shadow-sm pokemon-card"

@@ -11,7 +11,22 @@
   background-color: rgba(0, 0, 0, 0.2);
 }
 
+.pokemon-card1 {
+  overflow: hidden;
+}
+
+.pokemon-card1:hover .pokemon-card-inner {
+  transform: scale(1.02);
+}
+
+.pokemon-card-inner {
+  /* Optional: Add any additional styles for the card */
+  cursor: pointer;
+  transition: transform 0.2s;
+  text-decoration: none;
+}
   
+
 
 /*.fade-enter {
   opacity: 0;

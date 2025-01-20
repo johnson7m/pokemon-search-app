@@ -11,6 +11,7 @@ import { usePageContext } from '../contexts/PageContext';
 import { PokemonProvider } from '../contexts/PokemonContext';
 import FeaturedPokemon from '../components/FeaturedPokemon';
 import PokemonDetailPage from './PokemonDetailPage';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const variants = {
   initial: { opacity: 0, y: 20 },
@@ -21,6 +22,7 @@ const variants = {
 const MainHomePage = () => {
   const { theme } = useContext(ThemeContext);
   const { pageState, setPageState } = usePageContext();
+  const { user } = useAuthContext();
 
   const renderSelectedContent = () => {
     switch (pageState) {
@@ -42,6 +44,13 @@ const MainHomePage = () => {
   return (
     <PokemonProvider>
       <Container data-bs-theme={theme} className="mt-5">
+
+          {user ? (
+            <h1>Welcome back, {user.displayName || 'Trainer'}!</h1>
+          ) : (
+            <h1>Welcome to the Pokémon Search Index</h1>
+          )}
+
         {/* Persistent Search */}
         <SearchBar/>
 
