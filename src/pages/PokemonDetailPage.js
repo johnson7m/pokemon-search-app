@@ -114,6 +114,14 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
     }
   }, [pokemon]);
 
+
+  useEffect(() => {
+    if (pokemon) {
+      setShowAlternates(false);
+      setAlternateForms([]);
+    }
+  }, [pokemon])
+
     // 1) If no Pokemon is passed in, display fallback
 
     if (!pokemon) {
