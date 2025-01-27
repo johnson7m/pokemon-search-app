@@ -1,31 +1,31 @@
 // src/pages/FancyImagesSection.js
 import React from 'react';
+import PropTypes from 'prop-types';
 import './FancyImagesSection.css';
 
-const FancyImagesSection = () => {
+const FancyImagesSection = ({ images }) => {
   return (
     <section className="diagonal-images-container">
-      {/* Each "diagonal-image" is one slice */}
-      <div
-        className="diagonal-image"
-        style={{ '--bg-image': 'url("/assets/gamified-search.png")' }}
-      >
-        <div className="diagonal-caption">Gamified Search</div>
-      </div>
-      <div
-        className="diagonal-image"
-        style={{ '--bg-image': 'url("/assets/achievements.png")' }}
-      >
-        <div className="diagonal-caption">Achievements</div>
-      </div>
-      <div
-        className="diagonal-image"
-        style={{ '--bg-image': 'url("/assets/leaderboard.png")' }}
-      >
-        <div className="diagonal-caption">Leaderboards</div>
-      </div>
+      {images.map((item, index) => (
+        <div
+          key={index}
+          className="diagonal-image"
+          style={{ '--bg-image': `url("${item.src}")` }}
+        >
+          <div className="diagonal-caption">{item.caption}</div>
+        </div>
+      ))}
     </section>
   );
+};
+
+FancyImagesSection.propTypes = {
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      src: PropTypes.string.isRequired,    // path to image
+      caption: PropTypes.string.isRequired // text to display
+    })
+  ).isRequired
 };
 
 export default FancyImagesSection;

@@ -1,0 +1,65 @@
+/* src/pages/FancyImagesSection.css */
+
+/* The entire container: a row of 3 diagonal slices */
+.diagonal-images-container {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 150px; /* Adjust to your taste */
+    border-radius: 9999px;
+    overflow: hidden; 
+  }
+  
+  /* Each slice uses flex:1 by default, so 3 columns. 
+     We'll use a clip-path for the diagonal edge and a partial brightness. */
+  .diagonal-image {
+    --hover-flex: 3; /* how much to expand on hover */
+    --default-flex: 1; 
+    flex: var(--default-flex);
+    background-image: var(--bg-image);
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.5);
+    transition: filter 0.3s ease, flex 0.5s ease;
+    clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
+    position: relative;
+  }
+  
+  /* When hovered, 
+     - flex:3 => expands to about 3x the width of default slices 
+     - brightness(1) => fully bright
+  */
+  .diagonal-image:hover {
+    flex: var(--hover-flex);
+    filter: brightness(1);
+  }
+  
+  /* A caption in the bottom-left corner. 
+     Could also position it center, etc. */
+  .diagonal-caption {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    font-size: 1.2rem;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    pointer-events: none; /* so hover "focus" remains on the image container */
+  }
+  
+  /* Optional: animate the 'diagonal slide' more smoothly 
+     by adjusting the clip-path on hover. 
+     But the main effect is the expanded flex & brightness. */
+  
+
+     @media (max-width: 768px) {
+        .diagonal-images-container {
+          flex-direction: column;
+          height: auto;
+        }
+        .diagonal-image {
+          clip-path: none;
+          height: 200px;
+          margin-bottom: 2px;
+        }
+      }
+      

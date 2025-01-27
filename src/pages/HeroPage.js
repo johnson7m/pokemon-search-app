@@ -9,6 +9,7 @@ import SearchBar from '../components/SearchBar';
 import HeroPokemonCard from './HeroPokemonCard';
 import './HeroPage.css'; // your styling
 import { useAuthContext } from '../contexts/AuthContext';
+import FancyImagesSection from '../components/FancyImagesSection';
 
 // Existing variants
 const sectionVariants = {
@@ -58,18 +59,6 @@ const Hero = () => {
               >
                 Welcome to the Pokémon Search Index
               </motion.h1>
-
-              <motion.div
-                className="scroll-down"
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.8 }}
-              >
-                <a href="#features" className="scroll-down-link">
-                  <FaChevronDown size={32} />
-                  <span className="ms-2">Learn More</span>
-                </a>
-              </motion.div>
             </Col>
           </Row>
 
@@ -100,6 +89,19 @@ const Hero = () => {
               </AnimatePresence>
             </Col>
           </Row>
+          <Row className='text-center'>
+              <motion.div
+                className="scroll-down"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.8 }}
+              >
+                <a href="#features" className="scroll-down-link">
+                  <FaChevronDown size={32} />
+                  <span className="ms-2">Learn More</span>
+                </a>
+              </motion.div>            
+          </Row>
         </Container>
       </section>
 
@@ -123,11 +125,14 @@ const Hero = () => {
               </p>
             </Col>
             <Col md={6}>
-              <img
-                src="/assets/gamified-search.png"
-                alt="Gamified Search"
-                className="img-fluid rounded"
-              />
+                <FancyImagesSection
+                    images={[
+                        { src: '/assets/home_new_trainer.png', caption: 'Gamified Search'},
+                        { src: '/assets/dashboard_progress.png', caption: 'Achievements' },
+                        { src: '/assets/dashboard_leaderboard.png', caption: 'Leaderboards' },
+                    ]}
+                
+                />
             </Col>
           </Row>
         </motion.section>
@@ -139,7 +144,7 @@ const Hero = () => {
           viewport={{ once: true, amount: 0.2 }}
           variants={sectionVariants}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="py-5 bg-light"
+          className="py-5"
         >
           <Row className="align-items-center">
             <Col md={{ span: 6, order: 2 }}>
@@ -150,11 +155,14 @@ const Hero = () => {
               </p>
             </Col>
             <Col md={{ span: 6, order: 1 }}>
-              <img
-                src="/assets/achievements.png"
-                alt="Achievements"
-                className="img-fluid rounded"
-              />
+                <FancyImagesSection
+                    images={[
+                        { src: '/assets/home_new_trainer.png', caption: 'Gamified Search'},
+                        { src: '/assets/dashboard_progress.png', caption: 'Achievements' },
+                        { src: '/assets/dashboard_leaderboard.png', caption: 'Leaderboards' },
+                    ]}
+                
+                />
             </Col>
           </Row>
         </motion.section>
@@ -176,11 +184,14 @@ const Hero = () => {
               </p>
             </Col>
             <Col md={6}>
-              <img
-                src="/assets/leaderboard.png"
-                alt="Leaderboards"
-                className="img-fluid rounded"
-              />
+                <FancyImagesSection
+                    images={[
+                        { src: '/assets/home_new_trainer.png', caption: 'Gamified Search'},
+                        { src: '/assets/dashboard_progress.png', caption: 'Achievements' },
+                        { src: '/assets/dashboard_leaderboard.png', caption: 'Leaderboards' },
+                    ]}
+                
+                />
             </Col>
           </Row>
         </motion.section>
