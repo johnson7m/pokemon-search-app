@@ -17,7 +17,7 @@
   */
   .hero-banner {
     position: relative;
-    min-height: 50vh; /* covers full viewport if you want a big hero */
+    min-height: 100vh; /* covers full viewport if you want a big hero */
     background-attachment: fixed; /* Parallax effect */
     padding-top: 4rem;
     padding-bottom: 4rem;
@@ -87,6 +87,7 @@
   /* CTA section near bottom */
   .cta-section {
     background-color: rgba(0, 0, 0, 0.05);
+    height: 80vh;
   }
   
   /* Responsive adjustments */

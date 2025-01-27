@@ -151,20 +151,19 @@ const SearchBar = ({ onPokemonSelect }) => {
 
       <Row>
         <Col xs={12} className="mt-3 d-flex justify-content-left mb-3">
-          <Button
-            variant={theme === 'light' ? 'dark' : 'light'}
-            onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-            className="me-2"
-            aria-controls="advanced-search-collapse"
-            aria-expanded={showAdvancedSearch}
-          >
-            <i className="bi bi-search" />{' '}
-            <span className="d-none d-md-inline">Advanced Search</span>{' '}
-            {showAdvancedSearch ? '▲' : '▼'}
-          </Button>
-          
           {user && (
               <>
+              <Button
+                variant={theme === 'light' ? 'dark' : 'light'}
+                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+                className="me-2"
+                aria-controls="advanced-search-collapse"
+                aria-expanded={showAdvancedSearch}
+              >
+                <i className="bi bi-search" />{' '}
+                <span className="d-none d-md-inline">Advanced Search</span>{' '}
+                {showAdvancedSearch ? '▲' : '▼'}
+              </Button>              
               <Button
                 variant={theme === 'light' ? 'dark' : 'light'}
                 active={pageState === 'home'}
@@ -197,7 +196,6 @@ const SearchBar = ({ onPokemonSelect }) => {
             <Button
               variant={theme === 'light' ? 'dark' : 'light'}
               onClick={toggleTheme}
-              className='ms-2'
             >
               {theme === 'light' ? <FaMoon/> : <FaSun/>}
             </Button>

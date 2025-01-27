@@ -1,31 +1,54 @@
-// src/pages/FancyImagesSection.js
 import React from 'react';
 import PropTypes from 'prop-types';
 import './FancyImagesSection.css';
 
-const FancyImagesSection = ({ images }) => {
+const FancyImagesSection = ({
+  images,
+  containerHeight,
+  topRadius,
+  styleVariant,
+}) => {
+  // We assume exactly 3 images
   return (
-    <section className="diagonal-images-container">
-      {images.map((item, index) => (
+    <div
+      className={`fancy-images-container ${styleVariant}`}
+      style={{
+        height: containerHeight,
+        borderTopLeftRadius: topRadius,
+        borderTopRightRadius: topRadius,
+      }}
+    >
+      {images.map((img, idx) => (
         <div
-          key={index}
-          className="diagonal-image"
-          style={{ '--bg-image': `url("${item.src}")` }}
+          key={idx}
+          className={`fancy-slice fancy-slice-${idx + 1}`}
+          style={{
+            backgroundImage: `url("${img.src}")`,
+          }}
         >
-          <div className="diagonal-caption">{item.caption}</div>
+          <div className="fancy-caption">{img.caption}</div>
         </div>
       ))}
-    </section>
+    </div>
   );
 };
 
 FancyImagesSection.propTypes = {
   images: PropTypes.arrayOf(
     PropTypes.shape({
-      src: PropTypes.string.isRequired,    // path to image
-      caption: PropTypes.string.isRequired // text to display
+      src: PropTypes.string.isRequired,
+      caption: PropTypes.string,
     })
-  ).isRequired
+  ).isRequired,
+  containerHeight: PropTypes.string,
+  topRadius: PropTypes.string,
+  styleVariant: PropTypes.string,
+};
+
+FancyImagesSection.defaultProps = {
+  containerHeight: '400px',
+  topRadius: '1.5rem',
+  styleVariant: '',
 };
 
 export default FancyImagesSection;

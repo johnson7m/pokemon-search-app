@@ -30,7 +30,7 @@ const PokemonGridBase = ({ pokemonList, theme, isLoading, onPokemonSelect }) => 
               '';
 
             return (
-                <Col xs={6} sm={6} md={6} lg={4} xl={3} className="mb-4"
+                <Col xs={6} sm={6} md={6} lg={3} xl={3} className="mb-4"
                 as={motion.div}
                 key={pokemon.id}
                 layout
