@@ -19,13 +19,16 @@ import { usePageContext } from '../contexts/PageContext';
 import PokemonGrid from './PokemonGrid';
 import { usePokemonSearch } from '../hooks/usePokemonSearch';
 import { usePokemonContext } from '../contexts/PokemonContext';
+import { useAuthContext } from '../contexts/AuthContext';
 import './SearchBar.css';
+import { FaMoon, FaSun } from 'react-icons/fa';
 
-const SearchBar = () => {
-  const { theme } = useContext(ThemeContext);
+const SearchBar = ({ onPokemonSelect }) => {
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const { xpTrigger } = useXpContext();
   const { pageState, setPageState } = usePageContext();
   const { selectPokemon } = usePokemonContext();
+  const { user } = useAuthContext();
 
   const {
     searchTerm,
@@ -61,9 +64,7 @@ const SearchBar = () => {
       if (autocompleteResults.length > 0) {
         const selected = await handleSelectAutocomplete(autocompleteResults[0]);
         if (selected) {
-          selectPokemon(selected);
-          setPageState('pokemonDetail');
-          setShowAutoComplete(false);
+          handleSelect(selected);
         }
       } else {
         setErrorMessage('No autocompletion match found. Please refine your search.');
@@ -73,18 +74,26 @@ const SearchBar = () => {
 
 
     const handleGridSelect = async (pokemon) => {
-      selectPokemon(pokemon);
-      setPageState('pokemonDetail');
+      handleSelect(pokemon);
       setShowAdvancedSearch(false);
+    }
+
+
+    const handleSelect  = async (pokemonObject) => {
+      selectPokemon(pokemonObject);
+      if (onPokemonSelect) {
+        onPokemonSelect(pokemonObject);
+      } else {
+        setPageState('pokemonDetail')
+      }
+      setShowAutoComplete(false);
     }
 
     /** The user clicked one of the autocomplete items in the list */
     const handleAutocompleteClick = async (pokemonItem) => {
       const selected = await handleSelectAutocomplete(pokemonItem);
       if (selected) {
-        selectPokemon(selected);
-        setPageState('pokemonDetail');
-        setShowAutoComplete(false);
+        handleSelect(selected);
       }
     };
   
@@ -153,33 +162,45 @@ const SearchBar = () => {
             <span className="d-none d-md-inline">Advanced Search</span>{' '}
             {showAdvancedSearch ? '▲' : '▼'}
           </Button>
-          <Button
-            variant={theme === 'light' ? 'dark' : 'light'}
-            active={pageState === 'home'}
-            onClick={() => setPageState('home')}
-            className="me-2"
-          >
-            <i className="bi bi-house" />
-            <span className="d-none d-md-inline"> Home</span>
-          </Button>
-          <Button
-            variant={theme === 'light' ? 'dark' : 'light'}
-            active={pageState === 'dashboard'}
-            onClick={() => setPageState('dashboard')}
-            className="me-2"
-          >
-            <i className="bi bi-bar-chart" />
-            <span className="d-none d-md-inline"> Dashboard</span>
-          </Button>
-          <Button
-            variant={theme === 'light' ? 'dark' : 'light'}
-            active={pageState === 'pokemon'}
-            onClick={() => setPageState('pokemon')}
-            className="me-2"
-          >
-            <i className="bi bi-collection" />
-            <span className="d-none d-md-inline"> Pokémon</span>
-          </Button>
+          
+          {user && (
+              <>
+              <Button
+                variant={theme === 'light' ? 'dark' : 'light'}
+                active={pageState === 'home'}
+                onClick={() => setPageState('home')}
+                className="me-2"
+              >
+                <i className="bi bi-house" />
+                <span className="d-none d-md-inline"> Home</span>
+              </Button>
+              <Button
+                variant={theme === 'light' ? 'dark' : 'light'}
+                active={pageState === 'dashboard'}
+                onClick={() => setPageState('dashboard')}
+                className="me-2"
+              >
+                <i className="bi bi-bar-chart" />
+                <span className="d-none d-md-inline"> Dashboard</span>
+              </Button>
+              <Button
+                variant={theme === 'light' ? 'dark' : 'light'}
+                active={pageState === 'pokemon'}
+                onClick={() => setPageState('pokemon')}
+                className="me-2"
+              >
+                <i className="bi bi-collection" />
+                <span className="d-none d-md-inline"> Pokémon</span>
+              </Button>
+              </>
+            )}
+            <Button
+              variant={theme === 'light' ? 'dark' : 'light'}
+              onClick={toggleTheme}
+              className='ms-2'
+            >
+              {theme === 'light' ? <FaMoon/> : <FaSun/>}
+            </Button>
         </Col>
       </Row>
 
@@ -189,7 +210,7 @@ const SearchBar = () => {
             {/* Type Filter */}
             <Col xs={12} md={6} lg={3}>
               <Form.Group controlId="typeSelect">
-                <Form.Label>Select Type</Form.Label>
+                <Form.Label>Type</Form.Label>
                 {types.length ? (
                   <Form.Control
                     as="select"
@@ -212,7 +233,7 @@ const SearchBar = () => {
             {/* Ability Filter */}
             <Col xs={12} md={6} lg={3}>
               <Form.Group controlId="abilitySelect">
-                <Form.Label>Select Ability</Form.Label>
+                <Form.Label>Ability</Form.Label>
                 {abilitiesList.length ? (
                   <Form.Control
                     as="select"
@@ -235,7 +256,7 @@ const SearchBar = () => {
             {/* Evolution Stage Filter */}
             <Col xs={12} md={6} lg={3}>
               <Form.Group controlId="evolutionSelect">
-                <Form.Label>Select Evolution Stage</Form.Label>
+                <Form.Label>Evolution</Form.Label>
                 <Form.Control
                   as="select"
                   value={selectedEvolutionStage}
@@ -252,7 +273,7 @@ const SearchBar = () => {
             {/* Region Filter */}
             <Col xs={12} md={6} lg={3}>
               <Form.Group controlId="regionSelect">
-                <Form.Label>Select Region</Form.Label>
+                <Form.Label>Region</Form.Label>
                 {regions.length ? (
                   <Form.Control
                     as="select"
@@ -277,6 +298,7 @@ const SearchBar = () => {
               <Form.Check
                 type="switch"
                 id="alter-toggle"
+                style={{textAlign: 'left', paddingTop: '1rem'}}
                 label="Include Variants"
                 checked={includeAlters}
                 onChange={(e) => setIncludeAlters(e.target.checked)}

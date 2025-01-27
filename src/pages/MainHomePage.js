@@ -1,5 +1,5 @@
 // src/pages/MainHomePage.js
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Container } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';

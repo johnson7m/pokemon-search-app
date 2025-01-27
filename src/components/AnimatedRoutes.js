@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ThemeContext } from '../contexts/ThemeContext';
 import LoadingOverlay from './LoadingOverlay';
 import { PokemonProvider } from '../contexts/PokemonContext.js';
-const Hero = lazy(() => import('../pages/Hero.js'));
+const Hero = lazy(() => import('../pages/HeroPage.js'));
 const MainHomePage = lazy(() => import('../pages/MainHomePage'));
 const SearchBar = lazy(() => import('./SearchBar'));
 const Login = lazy(() => import('./Login'));

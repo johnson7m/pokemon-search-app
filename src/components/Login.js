@@ -26,7 +26,7 @@ const Login = () => {
       setEmail('');
       setPassword('');
       // Redirect to the home page or another page after successful login
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       setError(err.message);
       setSuccess('');

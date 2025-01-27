@@ -52,10 +52,6 @@ html, body {
 
 
 
-.main-content {
-  padding-bottom: 56px;
-}
-
 /* Custom scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
