@@ -5,8 +5,8 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ThemeContext } from '../contexts/ThemeContext';
 import LoadingOverlay from './LoadingOverlay';
-
-const Hero = lazy(() => import('../pages/Hero'));
+import { PokemonProvider } from '../contexts/PokemonContext.js';
+const Hero = lazy(() => import('../pages/Hero.js'));
 const MainHomePage = lazy(() => import('../pages/MainHomePage'));
 const SearchBar = lazy(() => import('./SearchBar'));
 const Login = lazy(() => import('./Login'));
@@ -53,7 +53,9 @@ const AnimatedRoutes = () => {
                 variants={pageVariants}
                 transition={pageTransition}
               >
-                <Hero />
+                <PokemonProvider>
+                <Hero hideNavbar={true} />
+                </PokemonProvider>
               </motion.div>
             </Suspense>
           }

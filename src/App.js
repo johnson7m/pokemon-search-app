@@ -1,6 +1,6 @@
 // src/App.js
 import React, { useContext, useEffect } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import CustomNavbar from './components/Navbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ThemeContext } from './contexts/ThemeContext.js';
@@ -8,9 +8,11 @@ import AnimatedRoutes from './components/AnimatedRoutes.js';
 import ToastPortal from './components/ToastPortal.js';
 import { savePokemonToCache, clearCache, getPokemonByIdOrName } from './utils/pokemonCache.js';
 import axios from 'axios';
+import useScrollPosition from './hooks/useScrollPosition.js';
 
 function App() {
   const { theme } = useContext(ThemeContext);
+  const isScrolled = useScrollPosition();
 
   const precachePopularPokemon = async () => {
     const popularPokemonIds = [1, 4, 7, 25, 150]; // Example IDs for starters and Pikachu/Mewtwo
@@ -28,34 +30,23 @@ function App() {
     precachePopularPokemon();
   }, []);
   
-  
 
-  useEffect(() => {
-    const adjustPadding = () => {
-      const navbar = document.querySelector('.navbar');
-      const mainContent = document.querySelector('.main-content');
-      if (navbar && mainContent) {
-        const navbarHeight = navbar.offsetHeight;
-        mainContent.style.paddingTop = `${navbarHeight}px`;
-      }
-    };
-    adjustPadding();
-    window.addEventListener('resize', adjustPadding);
-    return () => {
-      window.removeEventListener('resize', adjustPadding);
-    };
-  }, []);
+
+
 
   return (
     <Router>
-      <div className={`main-content ${theme}`}>
-        <CustomNavbar />
+      <div className={`main-content`}>
+        <CustomNavbar scrolled={isScrolled} />
         {/* This ToastPortal is now fully controlled by XpProvider (XpContext) */}
         <ToastPortal />
         <AnimatedRoutes />
       </div>
-    </Router>
+    </Router>    
   );
 }
+
+
+
 
 export default App;

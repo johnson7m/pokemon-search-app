@@ -1,6 +1,6 @@
 // src/components/Navbar.js
-import React, { useContext, useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { logOut } from '../services/authService';
 import { Navbar, Nav, Button, Offcanvas, ProgressBar } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
@@ -13,12 +13,12 @@ import { useUserStatsContext } from '../contexts/UserStatsContext';
 // If you keep xpNeededForLevel here, great. Or import from statisticsService:
 const xpNeededForLevel = (lvl) => (lvl <= 1 ? 0 : 100 * (lvl - 1) ** 2);
 
-const CustomNavbar = () => {
+const CustomNavbar = ({ scrolled }) => {
   const navigate = useNavigate();
   const { user } = useAuthContext();
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation()
 
   // 2) Read stats from context
   const { stats } = useUserStatsContext();
@@ -26,14 +26,8 @@ const CustomNavbar = () => {
   const level = stats?.level || 1;
   const xp = stats?.xp || 0;
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const offset = window.scrollY;
-      setScrolled(offset > 0);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+
+
 
   const handleLogOut = async () => {
     await logOut();
@@ -48,14 +42,18 @@ const CustomNavbar = () => {
   const nextLevelXpRequirement = xpNeededForLevel(level + 1);
   const xpRange = nextLevelXpRequirement - currentLevelXpMin;
   const xpProgress = xp - currentLevelXpMin;
+  
+  if (location.pathname === '/') {
+    return null;
+  }
 
   return (
     <>
       <Navbar
         bg={theme === 'light' ? 'white' : 'dark'}
         variant={theme === 'light' ? 'light' : 'dark'}
-        fixed="top"
-        className={scrolled ? 'navbar-scrolled justify-content-between' : 'justify-content-between'}
+        sticky="top"
+        className={`justify-content-between ${scrolled ? 'navbar-scrolled' : ''}`}
       >
         <Navbar.Brand as={Link} to="/" className="mx-3">
           Pokémon Search

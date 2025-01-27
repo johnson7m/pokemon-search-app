@@ -43,12 +43,17 @@ code {
     monospace;
 }
 
-
 html, body {
   scroll-behavior: smooth;
-  overflow-y: scroll;
+  scrollbar-gutter: stable;
   height: 100%;
   margin: 0;
+}
+
+
+
+.main-content {
+  padding-bottom: 56px;
 }
 
 /* Custom scrollbar styling */
@@ -67,16 +72,6 @@ html, body {
 }
 
 
-
-.main-content {
-  padding-top: 56px; /* Adjust as necessary */
-}
-
-@media (max-width: 576px) {
-  .main-content {
-    padding-top: 48px; /* Adjust for smaller screens */
-  }
-}
 
 .navbar {
   transition: box-shadow 0.3s;
