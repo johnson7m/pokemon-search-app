@@ -193,12 +193,14 @@ const SearchBar = ({ onPokemonSelect }) => {
               </Button>
               </>
             )}
+          {user && (            
             <Button
               variant={theme === 'light' ? 'dark' : 'light'}
               onClick={toggleTheme}
             >
               {theme === 'light' ? <FaMoon/> : <FaSun/>}
             </Button>
+          )}
         </Col>
       </Row>
 

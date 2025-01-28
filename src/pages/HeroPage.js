@@ -6,14 +6,15 @@ import { ThemeContext } from '../contexts/ThemeContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaChevronDown } from 'react-icons/fa';
 import { useAuthContext } from '../contexts/AuthContext';
-
 import Particles from '@tsparticles/react';
 import { loadFull } from 'tsparticles';
-
 import SearchBar from '../components/SearchBar';
 import HeroPokemonCard from './HeroPokemonCard';
 import FancyImagesSection from '../components/FancyImagesSection';
 import BackToTopButton from '../components/BackToTopButton'; // Import the new component
+import ThemeToggleFixed from '../components/ThemeToggleFixed';
+
+
 
 // Hook that toggles overlays (top & bottom)
 import useOverlayVisibility from '../hooks/useOverlayVisibility';
@@ -181,6 +182,8 @@ const Hero = () => {
     <div className={`hero-page bg-${theme}`} data-bs-theme={theme}>
       {/* Back to Top Button */}
       <BackToTopButton isVisible={isVisible} onClick={scrollToTop} />
+
+      {!user && <ThemeToggleFixed />}
 
       {/* HERO BANNER - 100vh, center content */}
       <section className="hero-banner d-flex align-items-center justify-content-center position-relative">
