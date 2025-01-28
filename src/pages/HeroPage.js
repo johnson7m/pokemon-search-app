@@ -174,6 +174,9 @@ const Hero = () => {
       size: {
         value: { min: 1, max: 3 },
       },
+      fullScreen: {
+        enable: false,
+      },
     },
     detectRetina: true,
   };
