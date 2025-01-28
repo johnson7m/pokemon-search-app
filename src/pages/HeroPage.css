@@ -1,104 +1,107 @@
 /* src/pages/HeroPage.css */
 
-/* Parallax background for the hero banner */
-.hero-page {
-    /* If you don't want an overall gradient, remove or replace it. */
-    background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
-    overflow-x: hidden;
-  }
-
-  .hero-page.bg-dark {
-    background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
-    color: #f5f5f5;
-  }
-  
-  /* The main hero banner with parallax:
-     background-attachment: fixed => the background moves slower than the content 
-  */
-  .hero-banner {
-    position: relative;
-    min-height: 100vh; /* covers full viewport if you want a big hero */
-    background-attachment: fixed; /* Parallax effect */
-    padding-top: 4rem;
-    padding-bottom: 4rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1; /* keep it above the video layer if you use a video */
-  }
-  
-  /* Optional video background (if you uncomment the <video> tag in HeroPage.js) */
-  .hero-bg-video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* preserves aspect ratio, center-crop the video */
-    z-index: -1; /* behind the content */
-    opacity: 0.7; /* semi-transparent, so text stands out */
-  }
-  
-  /* Title & Subsections */
-  .hero-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-  }
-  
-  /* src/pages/HeroPage.css or a new file */
-.hero-pokemon-card .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
+/* Each major section is at least full viewport height */
+.hero-banner,
+.feature-section,
+.cta-section {
+  min-height: 100vh;
+  position: relative; /* retains gradient backgrounds etc. */
 }
 
-.hero-pokemon-card {
-    margin: 2.5rem;
-    margin-top: 0;
+/* Keep your existing gradient logic */
+.bg-light .hero-banner {
+  background: linear-gradient(135deg, #f0f8ff 0%, #c8e2f0 100%);
+}
+.bg-dark .hero-banner {
+  background: linear-gradient(135deg, #1b1b1b 0%, #2a2a2a 100%);
 }
 
+/* Title & link colors in hero for light/dark */
+.hero-banner .hero-title,
+.hero-banner .scroll-down-link {
+  color: #fff;
+}
+.bg-light .hero-banner .hero-title,
+.bg-light .hero-banner .scroll-down-link {
+  color: #000 !important;
+  text-shadow: none !important;
+}
 
+/* The text style (small button) */
+.floating-text {
+  display: inline-flex; /* Prevents expansion to full width */
+  align-items: center;
+  font-size: 1rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6); /* Slightly darker for better visibility */
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+  transition: background 0.3s ease, transform 0.2s ease;
+  pointer-events: all; /* Allows the button to capture clicks */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+}
 
-  .hero-searchbar {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
-  /* Scroll-down button/arrow */
-  .scroll-down {
-    margin-top: 2rem;
-  }
-  
-  .scroll-down-link {
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease;
-  }
-  
-  .scroll-down-link:hover {
-    color: #000;
-  }
-  
-  /* Feature sections */
-  .feature-sections {
-    margin-top: 2rem;
-  }
-  
-  /* CTA section near bottom */
-  .cta-section {
-    background-color: rgba(0, 0, 0, 0.05);
-    height: 80vh;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .hero-title {
-      font-size: 1.8rem;
-    }
-    .hero-banner {
-      padding-top: 60px;
-      padding-bottom: 60px;
-      background-attachment: scroll; /* For mobile, parallax may behave differently */
-    }
-  }
-  
+.floating-text:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Optional: Add smooth transition for appearance */
+.floating-top-overlay,
+.floating-bottom-overlay {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Particles behind everything */
+.particles-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Title styling */
+.hero-title {
+  color: #fff;
+  z-index: 1;
+  text-shadow: 0 0 8px rgba(0,0,0,0.5);
+}
+
+/* Enhanced Chevron & link styling */
+.enhanced-chevron {
+  z-index: 1;
+}
+.bouncy-chevron {
+  animation: bounce 1.5s infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0);}
+  50% { transform: translateY(6px);}
+}
+.scroll-down-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.3rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+.scroll-down-link:hover {
+  color: #ddd; 
+}
+
+/* Example styling for feature text in dark sections */
+.display-4 {
+  color: #fff; 
+}
+.bg-light .display-4 {
+  color: #333;
+}
+.lead {
+  color: #ddd;
+}
+.bg-light .lead {
+  color: #555;
+}

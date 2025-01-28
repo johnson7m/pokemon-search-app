@@ -11,6 +11,7 @@ const useScrollPosition = () => {
         window.pageYOffset ||
         document.documentElement.scrollTop;
       setIsScrolled(scrollY > 0);
+      
       // Debugging logs
       //console.log('Scroll position:', scrollY, 'Is scrolled:', scrollY > 0);
     };
