@@ -27,17 +27,50 @@ const overlayVariants = {
   exit: { opacity: 0, y: 20 },
 };
 
-// Framer Motion variants for other animations
+// Framer Motion variants for container animations
 const containerVariants = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { 
+      duration: 0.8,
+      when: "beforeChildren",
+      staggerChildren: 0.3
+    },
+  },
 };
+
+// Framer Motion variants for heading animations
 const headingVariants = {
   hidden: { opacity: 0, y: -40 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8 },
+    transition: { 
+      duration: 0.8,
+      ease: 'easeOut'
+    },
+  },
+};
+
+// Framer Motion variants for subheadings and paragraphs
+const textVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.6, ease: 'easeOut' }
+  },
+};
+
+// Framer Motion variants for buttons
+const buttonVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { duration: 0.6, ease: 'easeOut' }
   },
 };
 
@@ -72,26 +105,76 @@ const Hero = () => {
 
   // Particle config
   const particlesOptions = {
+    background: {
+      color: {
+        value: "transparent",
+      },
+    },
+    fpsLimit: 60,
+    interactivity: {
+      events: {
+        onHover: { 
+          enable: true, 
+          mode: 'repulse' 
+        },
+        onClick: { 
+          enable: true, 
+          mode: 'push' 
+        },
+        resize: true,
+      },
+      modes: {
+        repulse: {
+          distance: 100,
+          duration: 0.4,
+        },
+        push: {
+          quantity: 4,
+        },
+      },
+    },
     particles: {
-      number: { value: 60 },
-      color: { value: theme === 'light' ? '#333333' : '#ffffff' },
-      size: { value: 3, random: true },
-      opacity: { value: 0.6, random: true },
+      color: {
+        value: theme === 'light' ? "#333333" : "#ffffff",
+      },
+      links: {
+        color: theme === 'light' ? "#555555" : "#aaaaaa",
+        distance: 150,
+        enable: true,
+        opacity: 0.3,
+        width: 1,
+      },
+      collisions: {
+        enable: false,
+      },
       move: {
         direction: 'none',
         enable: true,
-        outModes: { default: 'bounce' },
-        speed: 1,
+        outModes: {
+          default: 'bounce',
+        },
+        random: false,
+        speed: 1.5,
+        straight: false,
+      },
+      number: {
+        density: {
+          enable: true,
+          area: 800,
+        },
+        value: 80,
+      },
+      opacity: {
+        value: theme === 'light' ? 0.6 : 0.4,
+      },
+      shape: {
+        type: 'circle',
+      },
+      size: {
+        value: { min: 1, max: 3 },
       },
     },
-    interactivity: {
-      events: {
-        onHover: { enable: true, mode: 'repulse' },
-        onClick: { enable: true, mode: 'push' },
-      },
-    },
-    background: { color: 'transparent' },
-    fullScreen: { enable: false },
+    detectRetina: true,
   };
 
   return (
@@ -108,7 +191,7 @@ const Hero = () => {
           options={particlesOptions}
         />
 
-        <Container className="text-center">
+        <Container className="text-center position-relative z-2">
           <motion.h1
             variants={headingVariants}
             initial="hidden"
@@ -126,16 +209,23 @@ const Hero = () => {
           >
             <Row className="align-items-start">
               <Col xs={12} md={6} className="mb-3 hero-searchbar-col">
-                <SearchBar onPokemonSelect={handlePokemonSelect} />
+                  <SearchBar onPokemonSelect={handlePokemonSelect} />
               </Col>
               <Col xs={12} md={6} className="mb-3 hero-card-col">
                 <AnimatePresence mode="wait">
                   {heroSelectedPokemon && (
-                    <HeroPokemonCard
-                      key={heroSelectedPokemon.id}
-                      pokemon={heroSelectedPokemon}
-                      theme={theme}
-                    />
+                    <motion.div
+                      variants={textVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                    >
+                      <HeroPokemonCard
+                        key={heroSelectedPokemon.id}
+                        pokemon={heroSelectedPokemon}
+                        theme={theme}
+                      />
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </Col>
@@ -156,7 +246,6 @@ const Hero = () => {
         </Container>
       </section>
 
-
       {/* FEATURE SECTIONS */}
       <motion.section
         id="features"
@@ -169,10 +258,22 @@ const Hero = () => {
         <Container>
           <Row className="align-items-center">
             <Col md={6} className="mb-4">
-              <h2 className="display-4">Gamified Pokémon Search</h2>
-              <p className="lead">
+              <motion.h2
+                variants={textVariants}
+                initial="hidden"
+                animate="visible"
+                className="display-4"
+              >
+                Gamified Pokémon Search
+              </motion.h2>
+              <motion.p
+                variants={textVariants}
+                initial="hidden"
+                animate="visible"
+                className="lead"
+              >
                 Level up your trainer profile as you explore Pokémon data...
-              </p>
+              </motion.p>
             </Col>
             <Col md={6}>
               <FancyImagesSection
@@ -199,11 +300,23 @@ const Hero = () => {
       >
         <Container>
           <Row className="align-items-center">
-            <Col md={{ span: 6, order: 2 }}>
-              <h2 className="display-4">Advanced Features & Achievements</h2>
-              <p className="lead">
+            <Col md={{ span: 6, order: 2 }} className="mb-4">
+              <motion.h2
+                variants={textVariants}
+                initial="hidden"
+                animate="visible"
+                className="display-4"
+              >
+                Advanced Features & Achievements
+              </motion.h2>
+              <motion.p
+                variants={textVariants}
+                initial="hidden"
+                animate="visible"
+                className="lead"
+              >
                 Use our advanced search to filter by type, region, evolution stage...
-              </p>
+              </motion.p>
             </Col>
             <Col md={{ span: 6, order: 1 }}>
               <FancyImagesSection
@@ -230,11 +343,23 @@ const Hero = () => {
       >
         <Container>
           <Row className="align-items-center">
-            <Col md={6}>
-              <h2 className="display-4">Global Leaderboards & Favorites</h2>
-              <p className="lead">
+            <Col md={6} className="mb-4">
+              <motion.h2
+                variants={textVariants}
+                initial="hidden"
+                animate="visible"
+                className="display-4"
+              >
+                Global Leaderboards & Favorites
+              </motion.h2>
+              <motion.p
+                variants={textVariants}
+                initial="hidden"
+                animate="visible"
+                className="lead"
+              >
                 Track your progress, earn XP, and see how you rank...
-              </p>
+              </motion.p>
             </Col>
             <Col md={6}>
               <FancyImagesSection
@@ -261,32 +386,51 @@ const Hero = () => {
       >
         <Container>
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="cta-content"
           >
-            <h2 className="mb-4 display-4">Ready to Get Started?</h2>
-            <p className="lead mb-4">
+            <motion.h2
+              variants={textVariants}
+              initial="hidden"
+              animate="visible"
+              className="mb-4 display-4"
+            >
+              Ready to Get Started?
+            </motion.h2>
+            <motion.p
+              variants={textVariants}
+              initial="hidden"
+              animate="visible"
+              className="lead mb-4"
+            >
               Create an account to join the fun, track your progress...
-            </p>
-            <Button
-              as={Link}
-              to="/signup"
-              variant={theme === 'light' ? 'dark' : 'light'}
-              size="lg"
-              className="me-3"
+            </motion.p>
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="cta-buttons"
             >
-              Sign Up Now
-            </Button>
-            <Button
-              as={Link}
-              to="/login"
-              variant={theme === 'light' ? 'outline-dark' : 'outline-light'}
-              size="lg"
-            >
-              Log In
-            </Button>
+              <Button
+                as={Link}
+                to="/signup"
+                variant={theme === 'light' ? 'dark' : 'light'}
+                size="lg"
+                className="me-3"
+              >
+                Sign Up Now
+              </Button>
+              <Button
+                as={Link}
+                to="/login"
+                variant={theme === 'light' ? 'outline-dark' : 'outline-light'}
+                size="lg"
+              >
+                Log In
+              </Button>
+            </motion.div>
           </motion.div>
         </Container>
       </motion.section>

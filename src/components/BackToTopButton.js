@@ -22,7 +22,7 @@ const BackToTopButton = ({ isVisible, onClick }) => {
           exit="hidden"
           variants={variants}
           transition={{ duration: 0.3 }}
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.1, backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
           whileTap={{ scale: 0.9 }}
         >
           <FaArrowUp />

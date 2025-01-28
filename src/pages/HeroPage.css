@@ -5,10 +5,10 @@
 .feature-section,
 .cta-section {
   min-height: 100vh;
-  position: relative; /* retains gradient backgrounds etc. */
+  position: relative; /* Retains gradient backgrounds etc. */
 }
 
-/* Keep your existing gradient logic */
+/* Gradient backgrounds based on theme */
 .bg-light .hero-banner {
   background: linear-gradient(135deg, #f0f8ff 0%, #c8e2f0 100%);
 }
@@ -48,12 +48,6 @@
   background: rgba(0, 0, 0, 0.8);
 }
 
-/* Optional: Add smooth transition for appearance */
-.floating-top-overlay,
-.floating-bottom-overlay {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
 /* Particles behind everything */
 .particles-canvas {
   position: absolute;
@@ -65,21 +59,25 @@
 /* Title styling */
 .hero-title {
   color: #fff;
-  z-index: 1;
+  z-index: 2;
   text-shadow: 0 0 8px rgba(0,0,0,0.5);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
 }
 
 /* Enhanced Chevron & link styling */
 .enhanced-chevron {
-  z-index: 1;
+  z-index: 2;
 }
 .bouncy-chevron {
   animation: bounce 1.5s infinite;
 }
+
 @keyframes bounce {
   0%, 100% { transform: translateY(0);}
   50% { transform: translateY(6px);}
 }
+
 .scroll-down-link {
   color: #fff;
   text-decoration: none;
@@ -87,7 +85,9 @@
   font-weight: 600;
   display: inline-flex;
   align-items: center;
+  transition: color 0.3s ease;
 }
+
 .scroll-down-link:hover {
   color: #ddd; 
 }
@@ -95,13 +95,80 @@
 /* Example styling for feature text in dark sections */
 .display-4 {
   color: #fff; 
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
 }
 .bg-light .display-4 {
   color: #333;
 }
 .lead {
   color: #ddd;
+  font-size: 1.25rem;
 }
 .bg-light .lead {
   color: #555;
+}
+
+/* Fancy Images Section Styling */
+.feature-section .fancy-images-section {
+  display: flex;
+  gap: 1rem;
+}
+
+.fancy-images-section img {
+  width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fancy-images-section img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+/* CTA Section Styling */
+.cta-section {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 4rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cta-section .cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cta-section .cta-buttons .btn {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cta-section .cta-buttons .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .display-4 {
+    font-size: 2rem;
+  }
+
+  .lead {
+    font-size: 1rem;
+  }
+
+  .back-to-top-button {
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+  }
 }
