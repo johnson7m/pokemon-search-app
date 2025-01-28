@@ -8,13 +8,13 @@ import LoadingOverlay from './LoadingOverlay';
 import { PokemonProvider } from '../contexts/PokemonContext.js';
 const Hero = lazy(() => import('../pages/HeroPage.js'));
 const MainHomePage = lazy(() => import('../pages/MainHomePage'));
-const SearchBar = lazy(() => import('./SearchBar'));
 const Login = lazy(() => import('./Login'));
 const SignUp = lazy(() => import('./SignUp'));
 const PokemonDetailPage = lazy(() => import('../pages/PokemonDetailPage'));
 const Account = lazy(() => import('../pages/Account'));
 const SelectFeaturedPokemon = lazy(() => import('./SelectFeaturedPokemon'));
 const Dashboard = lazy(() => import('../pages/Dashboard'));
+
 
 const pageVariants = {
   initial: { opacity: 0, y: 50 },
@@ -125,29 +125,6 @@ const AnimatedRoutes = () => {
                 transition={pageTransition}
               >
                 <Dashboard />
-              </motion.div>
-            </Suspense>
-          }
-        />
-        <Route
-          path="/search"
-          element={
-            <Suspense
-              fallback={
-                <LoadingOverlay
-                  type="spinner"
-                  message="Loading Search..."
-                />
-              }
-            >
-              <motion.div
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={pageVariants}
-                transition={pageTransition}
-              >
-                <SearchBar/>
               </motion.div>
             </Suspense>
           }

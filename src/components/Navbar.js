@@ -150,7 +150,7 @@ const CustomNavbar = ({ scrolled }) => {
                 <Nav.Link
                   style={{ color: theme === 'light' ? 'black' : 'white' }}
                   as={Link}
-                  to="/home"
+                  to='/home'
                   onClick={handleClose}
                 >
                   Home
@@ -189,18 +189,10 @@ const CustomNavbar = ({ scrolled }) => {
                 <Nav.Link
                   style={{ color: `${theme === 'light' ? 'black' : 'white'}` }}
                   as={Link}
-                  to="/home"
+                  to="/"
                   onClick={handleClose}
                 >
-                  Home
-                </Nav.Link>
-                <Nav.Link
-                  style={{ color: `${theme === 'light' ? 'black' : 'white'}` }}
-                  as={Link}
-                  to="/search"
-                  onClick={handleClose}
-                >
-                  Search
+                  Demo
                 </Nav.Link>
               </>
             )}
