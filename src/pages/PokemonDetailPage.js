@@ -19,7 +19,7 @@ import axios from 'axios';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useXpContext } from '../contexts/XpContext';
-import './PokemonDetailPage.css'; // Import custom CSS for styling
+import './PokemonDetailPage.css';
 import { usePokemonContext } from '../contexts/PokemonContext';
 import { getPokemonByIdOrName } from '../utils/pokemonCache';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -56,31 +56,25 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
 
   const [pokemon, setPokemon] = useState(null);
 
-
+  // Accept propPokemon or fallback to selected
   useEffect(() => {
     if (propPokemon) {
       selectPokemon(propPokemon);
       setPokemon(propPokemon);
-      console.log('accepted props...');
     } else if (selectedPokemon) {
       setPokemon(selectedPokemon);
-      console.log('no props detected, looking for selected...')
     } else {
-
       const fetchFallback = async () => {
         const fallback = await getPokemonByIdOrName('pikachu');
         if (fallback) {
-          setPokemon(fallback); 
-          console.log('fallback set')
+          setPokemon(fallback);
         }
       };
       fetchFallback();
     }
-  }, [propPokemon, selectedPokemon])
+  }, [propPokemon, selectedPokemon, selectPokemon]);
 
-
-
-  // 2) On mount, check favorites, fetch species, etc.
+  // Check if favorite
   useEffect(() => {
     const checkFavorites = async () => {
       if (user && pokemon?.id) {
@@ -93,46 +87,54 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
     checkFavorites();
   }, [user, pokemon]);
 
+  // Fetch species + evolution chain
   useEffect(() => {
     const fetchSpecies = async () => {
+      if (!pokemon?.id) return;
       try {
         const response = await axios.get(
           `https://pokeapi.co/api/v2/pokemon-species/${pokemon.id}`
         );
         setSpecies(response.data);
 
-        // Fetch Evolution Chain
+        // Evolution chain
         const evolutionResponse = await axios.get(response.data.evolution_chain.url);
         setEvolutionChain(evolutionResponse.data);
       } catch (error) {
         console.error('Error fetching Pokémon species data:', error);
       }
     };
-
     if (pokemon?.id) {
       fetchSpecies();
     }
   }, [pokemon]);
-
 
   useEffect(() => {
     if (pokemon) {
       setShowAlternates(false);
       setAlternateForms([]);
     }
-  }, [pokemon])
+  }, [pokemon]);
 
-    // 1) If no Pokemon is passed in, display fallback
+  // If no Pokemon is ready, fallback
+  if (!pokemon) {
+    return (
+      <Container
+        data-bs-theme={theme}
+        className="mt-5 text-center"
+        role="status"
+        aria-label="Loading fallback Pokémon..."
+      >
+        <Spinner
+          animation="border"
+          variant={theme === 'light' ? 'dark' : 'light'}
+        />
+        <p className="mt-3">Loading fallback Pokémon...</p>
+      </Container>
+    );
+  }
 
-    if (!pokemon) {
-      return (
-        <Container data-bs-theme={theme} className="mt-5 text-center">
-          <Spinner animation="border" variant={theme === 'light' ? 'dark' : 'light'} />
-          <p className="mt-3">Loading fallback Pokémon...</p>
-        </Container>
-      );
-    }
-
+  // Fav toggling
   const handleToggleFavorite = async () => {
     if (!user) {
       triggerToast('Please log in to save favorites.', 'warning');
@@ -145,12 +147,14 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
     triggerToast(result.message, result.success ? 'success' : 'danger');
   };
 
+  // For naming convenience
   const formatPokemonName = (name) =>
     name.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 
   const hasAlternateForms = () =>
     species && species.varieties && species.varieties.length > 1;
 
+  // Fetch alt forms
   const fetchAlternateForms = async () => {
     if (!species) return;
     setLoadingAlternates(true);
@@ -179,6 +183,7 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
     }
   };
 
+  // Evolution chain rendering
   const renderEvolutionChain = () => {
     if (!evolutionChain) return null;
 
@@ -202,7 +207,7 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
           <div className="d-flex justify-content-center align-items-center evolution-chain">
             {evoChain.map((evo, index) => (
               <React.Fragment key={evo.speciesId}>
-                <div className="evolution-item text-center">
+                <div className="evolution-item text-center" aria-label={`evolution-step-${evo.speciesName}`}>
                   <img
                     src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evo.speciesId}.png`}
                     alt={evo.speciesName}
@@ -233,6 +238,7 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
       : pokemon.sprites?.other?.['official-artwork']?.front_default ||
         pokemon.sprites?.front_default;
 
+  // Render
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -243,17 +249,29 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
         exit="exit"
         transition={{ duration: 0.3 }}
       >
-        <Container data-bs-theme={theme} className="mt-5">
-          {/* "Back" button, so we can revert to the previous tab */}
+        <Container data-bs-theme={theme} className="mt-5" aria-live="polite">
+          {/* "Back" button, so we can revert to previous tab */}
           {onBack && (
-            <Button variant="secondary" onClick={onBack} className="mb-2">
+            <Button
+              variant="secondary"
+              onClick={onBack}
+              className="mb-2"
+              aria-label="Go back"
+            >
               &larr; Back
             </Button>
           )}
 
-          <Card data-bs-theme={theme === 'light' ? 'light' : 'dark'} className="shadow mt-3">
+          <Card
+            data-bs-theme={theme === 'light' ? 'light' : 'dark'}
+            className="shadow mt-3 magical-card"
+          >
             <Card.Body>
-              <Card.Title as="h2" className="text-capitalize text-center">
+              <Card.Title
+                as="h2"
+                className="text-capitalize text-center"
+                tabIndex="0"
+              >
                 {pokemon.name}
               </Card.Title>
               <Row className="align-items-center">
@@ -269,11 +287,22 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
                     value={imageType}
                     onChange={setImageType}
                     className="mt-2"
+                    aria-label="Select image style"
                   >
-                    <ToggleButton id="tbg-radio-1" value="classic" variant="outline-secondary">
+                    <ToggleButton
+                      id="tbg-radio-1"
+                      value="classic"
+                      variant="outline-secondary"
+                      aria-label="Classic Sprite"
+                    >
                       Classic
                     </ToggleButton>
-                    <ToggleButton id="tbg-radio-2" value="high-res" variant="outline-secondary">
+                    <ToggleButton
+                      id="tbg-radio-2"
+                      value="high-res"
+                      variant="outline-secondary"
+                      aria-label="High resolution artwork"
+                    >
                       High-Res
                     </ToggleButton>
                   </ToggleButtonGroup>
@@ -302,6 +331,12 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
                     variant={isFavorite ? 'danger' : 'success'}
                     onClick={handleToggleFavorite}
                     className="mt-3"
+                    aria-pressed={isFavorite}
+                    aria-label={
+                      isFavorite
+                        ? 'Remove from Favorites'
+                        : 'Add to Favorites'
+                    }
                   >
                     {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
                   </Button>
@@ -342,7 +377,10 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
                   <h3>Abilities</h3>
                   <ul>
                     {pokemon.abilities.map((ability) => (
-                      <li key={ability.ability.name} className="text-capitalize">
+                      <li
+                        key={ability.ability.name}
+                        className="text-capitalize"
+                      >
                         {ability.ability.name}
                       </li>
                     ))}
@@ -351,24 +389,20 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
                 {species && (
                   <Col xs={12} md={6}>
                     <h3>Description</h3>
-                    {retroMode ? (
-                      <p>
-                        {species.flavor_text_entries
-                          .find((entry) => entry.language.name === 'en')
-                          ?.flavor_text.replace(/[\n\f]/g, ' ')
-                          .replace(/pok[eÉ]mon/gi, 'Pokémon')
-                          .replace(/\b[A-Z][A-Z]+\b/g, (w) =>
-                            formatPokemonName(w.toLowerCase())
-                          ) || 'Description not available.'}
-                      </p>
-                    ) : (
-                      <p>
-                        {species.flavor_text_entries
-                          .find((entry) => entry.language.name === 'en')
-                          ?.flavor_text.replace(/[\n\f]/g, ' ') ||
+                    <p>
+                      {retroMode
+                        ? species.flavor_text_entries
+                            .find((entry) => entry.language.name === 'en')
+                            ?.flavor_text.replace(/[\n\f]/g, ' ')
+                            .replace(/pok[eÉ]mon/gi, 'Pokémon')
+                            .replace(/\b[A-Z][A-Z]+\b/g, (w) =>
+                              formatPokemonName(w.toLowerCase())
+                            ) || 'Description not available.'
+                        : species.flavor_text_entries
+                            .find((entry) => entry.language.name === 'en')
+                            ?.flavor_text.replace(/[\n\f]/g, ' ') ||
                           'Description not available.'}
-                      </p>
-                    )}
+                    </p>
                   </Col>
                 )}
               </Row>
@@ -404,7 +438,10 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
             <div id="alternate-forms-collapse" ref={alternateFormsRef}>
               {loadingAlternates && (
                 <div className="mt-3 text-center">
-                  <Spinner animation="border" variant={theme === 'light' ? 'dark' : 'light'} />
+                  <Spinner
+                    animation="border"
+                    variant={theme === 'light' ? 'dark' : 'light'}
+                  />
                   <p>Loading alternate forms...</p>
                 </div>
               )}
@@ -415,12 +452,24 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
                     <h3 className="text-center mb-4">Alternate Forms</h3>
                     <Row>
                       {alternateForms.map((alt) => (
-                        <Col xs={6} sm={4} md={3} lg={3} className="mb-4" key={alt.id}>
-                          <Card className="h-100 text-center shadow-sm pokemon-card"
+                        <Col
+                          xs={6}
+                          sm={4}
+                          md={3}
+                          lg={3}
+                          className="mb-4"
+                          key={alt.id}
+                        >
+                          <Card
+                            className="h-100 text-center shadow-sm pokemon-card"
                             onClick={async () => {
-                              const altPoke = await getPokemonByIdOrName(alt.name);
+                              const altPoke = await getPokemonByIdOrName(
+                                alt.name
+                              );
                               selectPokemon(altPoke);
-                            }}                          
+                            }}
+                            role="button"
+                            aria-label={`Alternate form ${alt.name}`}
                           >
                             <Card.Img
                               variant="top"
@@ -442,12 +491,10 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
               )}
             </div>
           </Collapse>
-          </Container>
-        </motion.div>
+        </Container>
+      </motion.div>
     </AnimatePresence>
   );
 };
 
 export default PokemonDetailPage;
-
-

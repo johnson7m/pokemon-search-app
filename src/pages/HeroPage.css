@@ -9,11 +9,16 @@
 }
 
 /* Gradient backgrounds based on theme */
-.bg-light .hero-banner {
+.hero-bg-light {
   background: linear-gradient(135deg, #f0f8ff 0%, #c8e2f0 100%);
 }
-.bg-dark .hero-banner {
+.hero-bg-dark {
   background: linear-gradient(135deg, #1b1b1b 0%, #2a2a2a 100%);
+}
+
+.list-group-item,
+.list-group {
+  background: inherit;
 }
 
 /* Title & link colors in hero for light/dark */
@@ -21,41 +26,40 @@
 .hero-banner .scroll-down-link {
   color: #fff;
 }
-.bg-light .hero-banner .hero-title,
-.bg-light .hero-banner .scroll-down-link {
+.hero-bg-light .hero-banner .hero-title,
+.hero-bg-light .hero-banner .scroll-down-link {
   color: #000 !important;
   text-shadow: none !important;
 }
 
 /* The text style (small button) */
 .floating-text {
-  display: inline-flex; /* Prevents expansion to full width */
+  display: inline-flex;
   align-items: center;
   font-size: 1rem;
   color: #fff;
-  background: rgba(0, 0, 0, 0.6); /* Slightly darker for better visibility */
+  background: rgba(0, 0, 0, 0.6);
   padding: 0.5rem 1rem;
   border-radius: 20px;
   cursor: pointer;
   user-select: none;
   text-align: center;
   transition: background 0.3s ease, transform 0.2s ease;
-  pointer-events: all; /* Allows the button to capture clicks */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+  pointer-events: all;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .floating-text:hover {
   background: rgba(0, 0, 0, 0.8);
 }
 
-
 /* Title styling */
 .hero-title {
-  color: #fff;
   z-index: 2;
-  text-shadow: 0 0 8px rgba(0,0,0,0.5);
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
+  margin-top: 10rem;
 }
 
 /* Enhanced Chevron & link styling */
@@ -67,8 +71,12 @@
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0);}
-  50% { transform: translateY(6px);}
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
 }
 
 .scroll-down-link {
@@ -79,26 +87,28 @@
   display: inline-flex;
   align-items: center;
   transition: color 0.3s ease;
+  margin-bottom: 20rem;
+  margin-top: 3rem;
 }
 
 .scroll-down-link:hover {
-  color: #ddd; 
+  color: #ddd;
 }
 
 /* Example styling for feature text in dark sections */
 .display-4 {
-  color: #fff; 
+  color: #fff;
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
 }
-.bg-light .display-4 {
+.hero-bg-light .display-4 {
   color: #333;
 }
 .lead {
   color: #ddd;
   font-size: 1.25rem;
 }
-.bg-light .lead {
+.hero-bg-light .lead {
   color: #555;
 }
 
@@ -109,19 +119,19 @@
 }
 
 .fancy-images-section img {
-  width: 100%;
+  max-width: 100%;
   height: auto;
   border-radius: 1rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .fancy-images-section img:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* CTA Section Styling */
+/* CTA Section */
 .cta-section {
   background: rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
@@ -141,24 +151,20 @@
 
 .cta-section .cta-buttons .btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
-
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2.5rem;
   }
-
   .display-4 {
     font-size: 2rem;
   }
-
   .lead {
     font-size: 1rem;
   }
-
   .back-to-top-button {
     bottom: 20px;
     right: 20px;

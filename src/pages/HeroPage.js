@@ -1,5 +1,5 @@
 // src/pages/HeroPage.js
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ThemeContext } from '../contexts/ThemeContext';
@@ -9,57 +9,53 @@ import { useAuthContext } from '../contexts/AuthContext';
 import SearchBar from '../components/SearchBar';
 import HeroPokemonCard from './HeroPokemonCard';
 import FancyImagesSection from '../components/FancyImagesSection';
-import BackToTopButton from '../components/BackToTopButton'; // Import the new component
+import BackToTopButton from '../components/BackToTopButton';
 import ThemeToggleFixed from '../components/ThemeToggleFixed';
-
 import useOverlayVisibility from '../hooks/useOverlayVisibility';
 
 import './HeroPage.css';
+import AccessibilityToggleFixed from '../components/AccessibilityToggleFixed';
 
-// Framer Motion variants for container animations
 const containerVariants = {
   hidden: { opacity: 0, y: 40 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { 
+    transition: {
       duration: 0.8,
-      when: "beforeChildren",
-      staggerChildren: 0.3
+      when: 'beforeChildren',
+      staggerChildren: 0.3,
     },
   },
 };
 
-// Framer Motion variants for heading animations
 const headingVariants = {
   hidden: { opacity: 0, y: -40 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { 
+    transition: {
       duration: 0.8,
-      ease: 'easeOut'
+      ease: 'easeOut',
     },
   },
 };
 
-// Framer Motion variants for subheadings and paragraphs
 const textVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' }
+    transition: { duration: 0.6, ease: 'easeOut' },
   },
 };
-
 
 const Hero = () => {
   const { theme } = useContext(ThemeContext);
   const { user } = useAuthContext();
   const navigate = useNavigate();
-  const [heroSelectedPokemon, setHeroSelectedPokemon] = useState(null);
- 
+  const [heroSelectedPokemon, setHeroSelectedPokemon] = React.useState(null);
+
   // Overlays logic (show/hide top & bottom)
   const { isVisible } = useOverlayVisibility();
 
@@ -78,22 +74,35 @@ const Hero = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
- 
   return (
-    <div className={`hero-page bg-${theme}`} data-bs-theme={theme}>
+    <div
+      className={`hero-page hero-bg-${theme}`}
+      data-bs-theme={theme}
+      role="region"
+      aria-label="Hero Page"
+    >
       {/* Back to Top Button */}
       <BackToTopButton isVisible={isVisible} onClick={scrollToTop} />
 
-      {!user && <ThemeToggleFixed />}
+      {!user && 
+        <>
+          <ThemeToggleFixed />
+          <AccessibilityToggleFixed/>
+        </>
+      }
 
       {/* HERO BANNER - 100vh, center content */}
-      <section className="hero-banner d-flex align-items-center justify-content-center position-relative">
+      <section
+        className="hero-banner d-flex align-items-center justify-content-center position-relative"
+        aria-label="Hero Banner"
+      >
         <Container className="text-center position-relative z-2">
           <motion.h1
             variants={headingVariants}
             initial="hidden"
             animate="visible"
             className="hero-title display-3 mb-4"
+            tabIndex="0"
           >
             Welcome to the Pokémon Search Index
           </motion.h1>
@@ -118,6 +127,7 @@ const Hero = () => {
                       initial="hidden"
                       animate="visible"
                       exit="hidden"
+                      aria-live="polite"
                     >
                       <HeroPokemonCard
                         key={heroSelectedPokemon.id}
@@ -137,7 +147,7 @@ const Hero = () => {
             initial="hidden"
             animate="visible"
           >
-            <a href="#features" className="scroll-down-link">
+            <a href="#features" className="scroll-down-link" aria-label="Scroll Down">
               <FaChevronDown className="bouncy-chevron" size={32} />
               <span className="ms-2">Dive Deeper</span>
             </a>
@@ -153,6 +163,7 @@ const Hero = () => {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.5 }}
+        aria-label="Feature: Gamified Pokémon Search"
       >
         <Container>
           <Row className="align-items-center">
@@ -181,7 +192,7 @@ const Hero = () => {
                   { src: '/assets/dashboard_progress.png', caption: 'Achievements' },
                   { src: '/assets/dashboard_leaderboard.png', caption: 'Leaderboards' },
                 ]}
-                containerHeight="350px"
+                containerHeight="250px"
                 topRadius="2rem"
               />
             </Col>
@@ -189,13 +200,13 @@ const Hero = () => {
         </Container>
       </motion.section>
 
-      {/* Another full-viewport feature */}
       <motion.section
         className="feature-section d-flex align-items-center justify-content-center"
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.5 }}
+        aria-label="Feature: Advanced Features & Achievements"
       >
         <Container>
           <Row className="align-items-center">
@@ -224,7 +235,7 @@ const Hero = () => {
                   { src: '/assets/dashboard_progress.png', caption: 'Stats & Progress' },
                   { src: '/assets/dashboard_leaderboard.png', caption: 'Community Ranks' },
                 ]}
-                containerHeight="350px"
+                containerHeight="250px"
                 topRadius="2rem"
               />
             </Col>
@@ -232,13 +243,13 @@ const Hero = () => {
         </Container>
       </motion.section>
 
-      {/* Third feature... */}
       <motion.section
         className="feature-section d-flex align-items-center justify-content-center"
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.5 }}
+        aria-label="Feature: Global Leaderboards & Favorites"
       >
         <Container>
           <Row className="align-items-center">
@@ -267,7 +278,7 @@ const Hero = () => {
                   { src: '/assets/dashboard_progress.png', caption: 'Track Progress' },
                   { src: '/assets/dashboard_leaderboard.png', caption: 'Climb Leaderboards' },
                 ]}
-                containerHeight="350px"
+                containerHeight="250px"
                 topRadius="2rem"
               />
             </Col>
@@ -282,6 +293,7 @@ const Hero = () => {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.5 }}
+        aria-label="Call to Action"
       >
         <Container>
           <motion.div
@@ -318,6 +330,7 @@ const Hero = () => {
                 variant={theme === 'light' ? 'dark' : 'light'}
                 size="lg"
                 className="me-3"
+                aria-label="Sign up now"
               >
                 Sign Up Now
               </Button>
@@ -326,6 +339,7 @@ const Hero = () => {
                 to="/login"
                 variant={theme === 'light' ? 'outline-dark' : 'outline-light'}
                 size="lg"
+                aria-label="Log in"
               >
                 Log In
               </Button>

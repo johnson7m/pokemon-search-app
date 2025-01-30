@@ -22,14 +22,14 @@ root.render(
       <ThemeProvider>
         <AuthProvider>
           <UserStatsProvider>
-              <PageProvider>
-                <XpProvider>
-                    <QueryClientProvider client={queryClient}>
-                      <App />
-                    </QueryClientProvider>
-                </XpProvider>
-              </PageProvider>
-          </UserStatsProvider> 
+            <PageProvider>
+              <XpProvider>
+                <QueryClientProvider client={queryClient}>
+                  <App />
+                </QueryClientProvider>
+              </XpProvider>
+            </PageProvider>
+          </UserStatsProvider>
         </AuthProvider>
       </ThemeProvider>
     </LoadingProvider>

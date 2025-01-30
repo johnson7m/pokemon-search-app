@@ -1,4 +1,30 @@
-/*.fade-enter {
+/* src/pages/MainHomePage.css */
+
+/* Center the card content on smaller screens */
+@media (max-width: 767px) {
+  .featured-pokemon .card-body {
+    text-align: center;
+  }
+}
+
+/* Adjust the image size on smaller screens */
+@media (max-width: 576px) {
+  .featured-pokemon .card-img {
+    max-width: 150px;
+  }
+}
+
+/* Subtle background or accent for the container */
+.main-homepage-container {
+  border-radius: 1rem;
+  padding: 1.5rem;
+  backdrop-filter: blur(2px);
+  transition: background 0.3s ease;
+  height: 100%;
+}
+
+/* Minimal fade transitions for child content (optional) */
+.fade-enter {
   opacity: 0;
 }
 .fade-enter-active {
@@ -12,21 +38,3 @@
   opacity: 0;
   transition: opacity 300ms ease-in-out;
 }
-
-
-
-
-/* Center the card content on smaller screens */
-@media (max-width: 767px) {
-    .featured-pokemon .card-body {
-      text-align: center;
-    }
-  }
-  
-  /* Adjust the image size on smaller screens */
-  @media (max-width: 576px) {
-    .featured-pokemon .card-img {
-      max-width: 150px;
-    }
-  }
-  

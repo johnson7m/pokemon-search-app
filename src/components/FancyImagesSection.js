@@ -1,3 +1,4 @@
+// src/components/FancyImagesSection.js
 import React from 'react';
 import PropTypes from 'prop-types';
 import './FancyImagesSection.css';
@@ -8,7 +9,6 @@ const FancyImagesSection = ({
   topRadius,
   styleVariant,
 }) => {
-  // We assume exactly 3 images
   return (
     <div
       className={`fancy-images-container ${styleVariant}`}
@@ -16,7 +16,11 @@ const FancyImagesSection = ({
         height: containerHeight,
         borderTopLeftRadius: topRadius,
         borderTopRightRadius: topRadius,
+        borderBottomRightRadius: topRadius,
+        borderBottomLeftRadius: topRadius,
       }}
+      role="figure"
+      aria-label="Fancy images section"
     >
       {images.map((img, idx) => (
         <div
@@ -25,6 +29,7 @@ const FancyImagesSection = ({
           style={{
             backgroundImage: `url("${img.src}")`,
           }}
+          aria-label={`Decorative Image Slice ${idx + 1}`}
         >
           <div className="fancy-caption">{img.caption}</div>
         </div>

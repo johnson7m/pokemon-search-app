@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import SearchBar from '../components/SearchBar';
 import Home from './Home';
 import Dashboard from './Dashboard';
-import "./MainHomePage.css";
+import './MainHomePage.css';
 import { usePageContext } from '../contexts/PageContext';
 import { PokemonProvider } from '../contexts/PokemonContext';
 import FeaturedPokemon from '../components/FeaturedPokemon';
@@ -21,7 +21,7 @@ const variants = {
 
 const MainHomePage = () => {
   const { theme } = useContext(ThemeContext);
-  const { pageState, setPageState } = usePageContext();
+  const { pageState } = usePageContext();
   const { user } = useAuthContext();
 
   const renderSelectedContent = () => {
@@ -33,9 +33,7 @@ const MainHomePage = () => {
       case 'pokemon':
         return <FeaturedPokemon section="mainFeaturedPokemon" key="pokemon" />;
       case 'pokemonDetail':
-        return (
-          <PokemonDetailPage key="pokemonDetail" />
-        );
+        return <PokemonDetailPage key="pokemonDetail" />;
       default:
         return <Home key="home" />;
     }
@@ -43,16 +41,15 @@ const MainHomePage = () => {
 
   return (
     <PokemonProvider>
-      <Container data-bs-theme={theme} className="mt-5">
-
-          {user ? (
-            <h1>Welcome back, {user.displayName || 'Trainer'}!</h1>
-          ) : (
-            <h1>Welcome to the Pokémon Search Index</h1>
-          )}
+      <Container data-bs-theme={theme} className={`mt-5 main-homepage-container`} role="main">
+        <h1 tabIndex="0">
+          {user
+            ? `Welcome back, ${user.displayName || 'Trainer'}!`
+            : 'Welcome to the Pokémon Search Index'}
+        </h1>
 
         {/* Persistent Search */}
-        <SearchBar/>
+        <SearchBar />
 
         {/* AnimatePresence handles mounting and unmounting animations */}
         <AnimatePresence mode="wait">

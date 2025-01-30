@@ -6,28 +6,20 @@ import { Navbar, Nav, Button, Offcanvas, ProgressBar } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuthContext } from '../contexts/AuthContext';
 import { FaSun, FaMoon, FaStar } from 'react-icons/fa';
-
-// 1) Import your user stats context
 import { useUserStatsContext } from '../contexts/UserStatsContext';
 
-// If you keep xpNeededForLevel here, great. Or import from statisticsService:
 const xpNeededForLevel = (lvl) => (lvl <= 1 ? 0 : 100 * (lvl - 1) ** 2);
 
 const CustomNavbar = ({ scrolled }) => {
   const navigate = useNavigate();
   const { user } = useAuthContext();
-  const { theme, toggleTheme } = useContext(ThemeContext);
+  const { theme, toggleTheme, accessibilityMode, toggleAccessibilityMode } = useContext(ThemeContext);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
-  const location = useLocation()
+  const location = useLocation();
 
-  // 2) Read stats from context
   const { stats } = useUserStatsContext();
-  // stats might be null if user is not logged in or data not loaded
   const level = stats?.level || 1;
   const xp = stats?.xp || 0;
-
-
-
 
   const handleLogOut = async () => {
     await logOut();
@@ -37,12 +29,11 @@ const CustomNavbar = ({ scrolled }) => {
   const handleClose = () => setShowOffcanvas(false);
   const handleShow = () => setShowOffcanvas(true);
 
-  // 3) Calculate progress for next level
   const currentLevelXpMin = xpNeededForLevel(level);
   const nextLevelXpRequirement = xpNeededForLevel(level + 1);
   const xpRange = nextLevelXpRequirement - currentLevelXpMin;
   const xpProgress = xp - currentLevelXpMin;
-  
+
   if (location.pathname === '/') {
     return null;
   }
@@ -54,12 +45,13 @@ const CustomNavbar = ({ scrolled }) => {
         variant={theme === 'light' ? 'light' : 'dark'}
         sticky="top"
         className={`justify-content-between ${scrolled ? 'navbar-scrolled' : ''}`}
+        role="navigation"
+        aria-label="Main navigation"
       >
         <Navbar.Brand as={Link} to="/" className="mx-3">
           Pokémon Search
         </Navbar.Brand>
 
-        {/* Show XP bar and Level if user is logged in & stats are available */}
         {user && stats && (
           <div className="d-flex align-items-center me-3">
             <div style={{ position: 'relative', width: '100px', marginRight: '0.5rem' }}>
@@ -67,7 +59,8 @@ const CustomNavbar = ({ scrolled }) => {
                 now={xpProgress}
                 max={xpRange}
                 variant={theme === 'light' ? 'info' : 'secondary'}
-                style={{ height: '1rem' }}
+                style={{ height: '1rem', borderRadius: '0.5rem' }}
+                aria-label={`XP progress: ${xpProgress} of ${xpRange} for next level`}
               />
               <div
                 style={{
@@ -89,9 +82,15 @@ const CustomNavbar = ({ scrolled }) => {
               </div>
             </div>
 
-            {/* Show the level icon with the level number */}
             <div style={{ position: 'relative', display: 'inline-block' }}>
-              <FaStar style={{ fontSize: '1.5rem', color: theme === 'light' ? '#000' : '#fff' }} />
+              <FaStar
+                style={{
+                  fontSize: '1.5rem',
+                  color: theme === 'light' ? '#000' : '#fff',
+                  outline: 'none'
+                }}
+                aria-hidden="true"
+              />
               <span
                 style={{
                   position: 'absolute',
@@ -100,7 +99,9 @@ const CustomNavbar = ({ scrolled }) => {
                   transform: 'translate(-50%, -50%)',
                   fontSize: '0.75rem',
                   color: theme === 'light' ? 'white' : 'black',
+                  pointerEvents: 'none',
                 }}
+                aria-label={`Level ${level}`}
               >
                 {level}
               </span>
@@ -108,7 +109,12 @@ const CustomNavbar = ({ scrolled }) => {
           </div>
         )}
 
-        <Button variant="link" onClick={handleShow} className="me-3">
+        <Button
+          variant="link"
+          onClick={handleShow}
+          className="me-3"
+          aria-label="Open navigation menu"
+        >
           <span className="navbar-toggler-icon"></span>
         </Button>
       </Navbar>
@@ -119,7 +125,8 @@ const CustomNavbar = ({ scrolled }) => {
         placement="end"
         backdrop
         scroll
-        className={theme === 'light' ? 'bg-light' : 'bg-dark text-white'}
+        className={`${theme === 'light' ? 'bg-light' : 'bg-dark text-white'}`}
+        aria-label="Offcanvas Menu"
       >
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Menu</Offcanvas.Title>
@@ -130,7 +137,7 @@ const CustomNavbar = ({ scrolled }) => {
               variant={theme === 'light' ? 'outline-dark' : 'outline-light'}
               onClick={toggleTheme}
               className="mb-3"
-              aria-label="Toggle Theme"
+              aria-label="Toggle theme"
             >
               {theme === 'light' ? (
                 <>
@@ -144,14 +151,25 @@ const CustomNavbar = ({ scrolled }) => {
                 </>
               )}
             </Button>
+            {/* ACCESSIBILITY MODE TOGGLE */}
+            <Button
+              variant={theme === 'light' ? 'outline-dark' : 'outline-light'}
+              onClick={toggleAccessibilityMode}
+              className="mb-3"
+              aria-pressed={accessibilityMode}
+              aria-label="Toggle accessibility mode"
+            >
+              {accessibilityMode ? 'Accessibility: ON' : 'Accessibility: OFF'}
+            </Button>            
 
             {user ? (
               <>
                 <Nav.Link
                   style={{ color: theme === 'light' ? 'black' : 'white' }}
                   as={Link}
-                  to='/home'
+                  to="/home"
                   onClick={handleClose}
+                  aria-label="Go to Home"
                 >
                   Home
                 </Nav.Link>
@@ -160,6 +178,7 @@ const CustomNavbar = ({ scrolled }) => {
                   as={Link}
                   to="/profile"
                   onClick={handleClose}
+                  aria-label="Go to Profile"
                 >
                   Profile
                 </Nav.Link>
@@ -168,31 +187,34 @@ const CustomNavbar = ({ scrolled }) => {
                   as={Link}
                   to="/search"
                   onClick={handleClose}
+                  aria-label="Go to Search"
                 >
                   Search
                 </Nav.Link>
                 <Nav.Link
                   style={{ color: theme === 'light' ? 'black' : 'white' }}
                   onClick={handleLogOut}
+                  aria-label="Log out"
                 >
                   Log Out
                 </Nav.Link>
               </>
             ) : (
               <>
-                <Nav.Link as={Link} to="/signup" onClick={handleClose}>
+                <Nav.Link as={Link} to="/signup" onClick={handleClose} aria-label="Sign Up">
                   Sign Up
                 </Nav.Link>
-                <Nav.Link as={Link} to="/login" onClick={handleClose}>
+                <Nav.Link as={Link} to="/login" onClick={handleClose} aria-label="Log In">
                   Log In
                 </Nav.Link>
                 <Nav.Link
-                  style={{ color: `${theme === 'light' ? 'black' : 'white'}` }}
+                  style={{ color: theme === 'light' ? 'black' : 'white' }}
                   as={Link}
                   to="/"
                   onClick={handleClose}
+                  aria-label="Go to Demo"
                 >
-                  Demo
+                  Back to demo
                 </Nav.Link>
               </>
             )}

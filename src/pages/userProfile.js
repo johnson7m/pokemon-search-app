@@ -29,14 +29,17 @@ const UserProfile = () => {
   };
 
   return (
-    <Container data-bs-theme={theme} className="mt-5">
-      <h2>User Profile</h2>
+    <Container data-bs-theme={theme} className="mt-5" role="region" aria-label="User Profile">
+      <h2 tabIndex="0">User Profile</h2>
       {user && preferences ? (
         <>
           <ProfileForm user={user} />
           <hr />
           <h3>Preferences</h3>
-          <PreferencesForm preferences={preferences} onSave={handleSavePreferences} />
+          <PreferencesForm
+            preferences={preferences}
+            onSave={handleSavePreferences}
+          />
         </>
       ) : (
         <p>Loading...</p>

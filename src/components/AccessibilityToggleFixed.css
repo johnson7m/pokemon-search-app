@@ -1,0 +1,36 @@
+/* src/components/AccessibilityToggleFixed.css */
+
+.accessibility-toggle-fixed {
+    position: fixed;
+    top: 80px; /* So it doesn't overlap the theme toggle if both are present */
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .accessibility-toggle-fixed:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .accessibility-toggle-fixed:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+  }
+  
+  .accessibility-toggle-fixed svg {
+    width: 20px;
+    height: 20px;
+  }
+  

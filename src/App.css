@@ -1,36 +1,29 @@
+/* src/App.css */
 
 .main-content {
-  padding-bottom: 56px;
+  min-height: 100vh;
 }
 
-/* src/App.css */
-.error-message {
-    color: red;
-    margin-top: 10px;
-  }
-  
+.app-light {
+  background: linear-gradient(135deg, #f0f8ff 0%, #c8e2f0 100%) !important;
+  color: #000000 !important;
 
-/* src/App.css */
-.success-message {
-    color: green;
-    margin-top: 10px;
-  }
-  
+}
+
+.app-dark {
+  background: linear-gradient(135deg, #1b1b1b 0%, #2a2a2a 100%) !important;
+  color: #ffffff !important;
+
+}
 
 
-  .app.light {
-    background-color: #ffffff;
-    color: #000000;
+@keyframes sparkle-move {
+  0% {
+    background-position: 0 0;
   }
-  
-  .app.dark {
-    background-color: #121212;
-    color: #ffffff;
+  100% {
+    background-position: 60px 60px;
   }
-/* Adjust card image size */
-.card img {
-  max-width: 100%;
-  height: auto;
 }
 
 /* Adjust table font size */
@@ -43,6 +36,3 @@
 ul {
   margin-left: 1rem;
 }
-
-
-

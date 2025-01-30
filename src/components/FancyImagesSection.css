@@ -1,86 +1,69 @@
-.fancy-images-container {
-    position: relative;
-    width: 100%;
-    overflow: hidden; /* allows rounding of corners to cut off child slices */
+/* src/components/FancyImagesSection.css */
 
-  }
-  
-  /* Base slice styles */
-  .fancy-slice {
-    position: absolute;
-    inset: 0; /* top:0, right:0, bottom:0, left:0 */
-    background-size: cover;
-    background-position: center;
-    filter: brightness(0.5);
-    transition:
-      clip-path 0.3s ease-in-out,
-      -webkit-clip-path 0.5s ease-in-out,
-      filter 0.3s ease,
-      z-index 0.3s;
-    z-index: 1;
-  }
-  
-  /* 
-    On hover:
-    - brighten
-    - bring to front
-    - expand clip-path but NOT 100%, leaving space for others
-  */
-  .fancy-slice:hover {
-    filter: brightness(1);
-    z-index: 2;
-  }
-  
-  /* 
-    LEFT SLICE: 
-    - "Rest" polygon extends slightly outside container to avoid corner gap.
-    - On hover, expand to maybe ~80% of container's width, leaving some space on the right.
-  */
-  .fancy-slice-1 {
-    clip-path: polygon(-5% -5%, 33% -5%, 28% 105%, -5% 105%);
-    -webkit-clip-path: polygon(-5% -5%, 33% -5%, 28% 105%, -5% 105%);
-  }
-  .fancy-slice-1:hover {
-    clip-path: polygon(-5% -5%, 80% -5%, 75% 105%, -5% 105%);
-    -webkit-clip-path: polygon(-5% -5%, 80% -5%, 75% 105%, -5% 105%);
-  }
-  
-  /* 
-    MIDDLE SLICE:
-    - Overlaps enough with left and right slices to avoid any gap.
-    - On hover, expand from ~15% to ~85% so that user can still click left or right slices.
-  */
-  .fancy-slice-2 {
-    clip-path: polygon(33% -5%, 66% -5%, 61% 105%, 28% 105%);
-    -webkit-clip-path: polygon(33% -5%, 66% -5%, 61% 105%, 28% 105%);
-  }
-  .fancy-slice-2:hover {
-    clip-path: polygon(15% -5%, 85% -5%, 80% 105%, 20% 105%);
-    -webkit-clip-path: polygon(15% -5%, 85% -5%, 80% 105%, 20% 105%);
-  }
-  
-  /* 
-    RIGHT SLICE:
-    - Extends beyond 100% (to 105%) on the right edge and bottom to ensure no gap.
-    - On hover, shrink the left edge to ~20%, leaving ~80% coverage.
-  */
-  .fancy-slice-3 {
-    clip-path: polygon(66% -5%, 105% -5%, 105% 105%, 61% 105%);
-    -webkit-clip-path: polygon(66% -5%, 105% -5%, 105% 105%, 61% 105%);
-  }
-  .fancy-slice-3:hover {
-    clip-path: polygon(20% -5%, 105% -5%, 105% 105%, 25% 105%);
-    -webkit-clip-path: polygon(20% -5%, 105% -5%, 105% 105%, 25% 105%);
-  }
-  
-  /* Caption styling */
-  .fancy-caption {
-    position: absolute;
-    bottom: 1rem;
-    left: 1rem;
-    color: #fff;
-    font-size: 1.1rem;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
-    pointer-events: none;
-  }
-  
+.fancy-images-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden; 
+}
+
+/* Base slice styles */
+.fancy-slice {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.5);
+  transition:
+    clip-path 0.3s ease-in-out,
+    -webkit-clip-path 0.3s ease-in-out,
+    filter 0.3s ease,
+    z-index 0.3s;
+  z-index: 1;
+}
+
+/* On hover: brighten & bring to front */
+.fancy-slice:hover {
+  filter: brightness(1);
+  z-index: 2;
+}
+
+/* LEFT SLICE */
+.fancy-slice-1 {
+  clip-path: polygon(-5% -5%, 33% -5%, 28% 105%, -5% 105%);
+  -webkit-clip-path: polygon(-5% -5%, 33% -5%, 28% 105%, -5% 105%);
+}
+.fancy-slice-1:hover {
+  clip-path: polygon(-5% -5%, 80% -5%, 75% 105%, -5% 105%);
+  -webkit-clip-path: polygon(-5% -5%, 80% -5%, 75% 105%, -5% 105%);
+}
+
+/* MIDDLE SLICE */
+.fancy-slice-2 {
+  clip-path: polygon(33% -5%, 66% -5%, 61% 105%, 28% 105%);
+  -webkit-clip-path: polygon(33% -5%, 66% -5%, 61% 105%, 28% 105%);
+}
+.fancy-slice-2:hover {
+  clip-path: polygon(15% -5%, 85% -5%, 80% 105%, 20% 105%);
+  -webkit-clip-path: polygon(15% -5%, 85% -5%, 80% 105%, 20% 105%);
+}
+
+/* RIGHT SLICE */
+.fancy-slice-3 {
+  clip-path: polygon(66% -5%, 105% -5%, 105% 105%, 61% 105%);
+  -webkit-clip-path: polygon(66% -5%, 105% -5%, 105% 105%, 61% 105%);
+}
+.fancy-slice-3:hover {
+  clip-path: polygon(20% -5%, 105% -5%, 105% 105%, 25% 105%);
+  -webkit-clip-path: polygon(20% -5%, 105% -5%, 105% 105%, 25% 105%);
+}
+
+/* Caption styling */
+.fancy-caption {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  color: #fff;
+  font-size: 1.1rem;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}

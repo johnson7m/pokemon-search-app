@@ -11,10 +11,9 @@ import {
   OverlayTrigger,
   Tooltip,
 } from 'react-bootstrap';
-import { FaStar, FaMedal } from 'react-icons/fa'; // Placeholder icons for Achievements/Badges
+import { FaStar, FaMedal } from 'react-icons/fa';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useAuthContext } from '../contexts/AuthContext';
-// Make sure you're importing from the new "statisticsService.js"
 import { getUserStats } from '../services/statisticsService';
 import { Link } from 'react-router-dom';
 import { getFavoritePokemon } from '../services/firestoreService';
@@ -26,14 +25,12 @@ import './Dashboard.css';
 import { motion } from 'framer-motion';
 import { usePageContext } from '../contexts/PageContext';
 
-// Example XP threshold function (duplicated from statisticsService.js so we can do live display)
 const xpNeededForLevel = (lvl) => (lvl <= 1 ? 0 : 100 * (lvl - 1) ** 2);
-
 
 const Dashboard = () => {
   const { theme } = useContext(ThemeContext);
   const { user } = useAuthContext();
-  const { pageState, setPageContext } = usePageContext();
+  const { pageState } = usePageContext();
 
   const [stats, setStats] = useState(null);
   const [favorites, setFavorites] = useState([]);
@@ -49,7 +46,6 @@ const Dashboard = () => {
       alert('Failed to sync water counts.');
     }
   };
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,7 +91,6 @@ const Dashboard = () => {
     );
   }
 
-  // Grab values (with fallback defaults)
   const totalSearches = stats?.totalSearches || 0;
   const totalFavorites = stats?.totalFavorites || 0;
   const totalTimeSpent = stats?.totalTimeSpent || 0;
@@ -104,21 +99,21 @@ const Dashboard = () => {
   const achievements = stats?.achievements || [];
   const badges = stats?.badges || [];
 
-  // Calculate where the user stands between the current level’s min XP and the next level’s threshold
-  const currentLevelXpMin = xpNeededForLevel(level);      // XP required to *be* at this level
-  const nextLevelXpRequirement = xpNeededForLevel(level + 1); // XP required to *reach* next level
+  const currentLevelXpMin = xpNeededForLevel(level);
+  const nextLevelXpRequirement = xpNeededForLevel(level + 1);
   const xpRange = nextLevelXpRequirement - currentLevelXpMin;
   const xpProgress = xp - currentLevelXpMin;
   const xpToNext = nextLevelXpRequirement - xp;
 
   return (
-    <Container data-bs-theme={theme} className="mt-5">
-      <h2>{user.displayName || 'New Trainer'}'s Dashboard!</h2>
+    <Container data-bs-theme={theme} className="mt-5" aria-label="Dashboard">
+      <h2>
+        {user.displayName || 'New Trainer'}'s Dashboard!
+      </h2>
 
-      {/* Row 1: Profile Summary / Recommended Pokémon */}
       <Row className="mt-4 g-4">
         <Col xs={12} sm={12} md={6} lg={6} className="d-flex align-items-stretch">
-          <Card className="dashboard-card flex-fill">
+          <Card className="dashboard-card flex-fill" aria-label="Profile Summary">
             <Card.Body>
               <Card.Title>Your Profile Summary</Card.Title>
               <p>
@@ -143,7 +138,7 @@ const Dashboard = () => {
         </Col>
 
         <Col xs={12} sm={12} md={6} lg={6} className="d-flex align-items-stretch">
-          <Card className="dashboard-card flex-fill">
+          <Card className="dashboard-card flex-fill" aria-label="Recommended Pokémon">
             <Card.Body>
               <Card.Title>Recommended Pokémon</Card.Title>
               {recommendations.length > 0 ? (
@@ -163,16 +158,18 @@ const Dashboard = () => {
         </Col>
       </Row>
 
-      {/* Row 2: XP / Achievements / Badges */}
       <Row className="mt-1 g-4">
         <Col xs={12} md={4} lg={6}>
-          <Card className="dashboard-card flex-fill">
+          <Card className="dashboard-card flex-fill" aria-label="Progress & Achievements">
             <Card.Body>
               <Card.Title>Progress & Achievements</Card.Title>
 
-              {/* XP & Level Section */}
-              <p><strong>Level:</strong> {level}</p>
-              <p><strong>XP:</strong> {xp}</p>
+              <p>
+                <strong>Level:</strong> {level}
+              </p>
+              <p>
+                <strong>XP:</strong> {xp}
+              </p>
               <ProgressBar
                 now={xpProgress}
                 max={xpRange}
@@ -184,7 +181,6 @@ const Dashboard = () => {
                   : 'You are ready to level up!'}
               </p>
 
-              {/* Achievements (as icons) */}
               <h5 className="mt-4">Achievements</h5>
               {achievements.length > 0 ? (
                 <Row>
@@ -205,7 +201,6 @@ const Dashboard = () => {
                 <p>No achievements yet.</p>
               )}
 
-              {/* Badges (as icons) */}
               <h5 className="mt-4">Badges</h5>
               {badges.length > 0 ? (
                 <Row>
@@ -229,8 +224,7 @@ const Dashboard = () => {
           </Card>
         </Col>
         <Col xs={12} md={8} lg={6}>
-          {/* We'll place the LeaderboardWidget in a card or just inline */}
-          <Card className="dashboard-card flex-fill">
+          <Card className="dashboard-card flex-fill" aria-label="Leaderboard Widget">
             <Card.Body>
               <LeaderboardWidget />
             </Card.Body>

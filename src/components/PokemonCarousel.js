@@ -67,7 +67,7 @@ const PokemonCarousel = ({ pokemonList, theme, dashboardMode = false }) => {
                 >
                   <Card
                     data-bs-theme={theme === 'light' ? 'light' : 'dark'}
-                    className="text-center pokemon-card1 shadow"
+                    className="text-center pokemon-card1"
                   >
                     <div
                       className='pokemon-card-inner'
