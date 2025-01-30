@@ -28,6 +28,14 @@
   background-color: rgba(0, 0, 0, 0.1);
 }
 
+/*.autocomplete-thumbnail {
+  width: 60px;
+  height: 30px;
+  margin-right: 10px;
+  object-fit: contain;
+}
+
+
 /* Optional: transitions for collapse */
 #advanced-search-collapse {
   transition: height 0.3s ease;

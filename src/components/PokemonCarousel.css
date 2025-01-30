@@ -3,7 +3,6 @@
 .carousel-control-next-icon {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 20%;
-
 }
 
 .carousel-control-prev-icon:hover,
@@ -11,15 +10,17 @@
   background-color: rgba(0, 0, 0, 0.2);
 }
 
+.carousel-item {
+  padding: 1rem;
+}
+
+
+
+.pokemon-card1:hover  {
+  transform: scale(1.05);
+}
+
 .pokemon-card1 {
-  overflow: hidden;
-}
-
-.pokemon-card1:hover .pokemon-card-inner {
-  transform: scale(1.02);
-}
-
-.pokemon-card-inner {
   /* Optional: Add any additional styles for the card */
   cursor: pointer;
   transition: transform 0.2s;

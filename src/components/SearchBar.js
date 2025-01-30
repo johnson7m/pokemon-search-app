@@ -136,6 +136,7 @@ const SearchBar = ({ onPokemonSelect }) => {
                   theme === 'dark' ? 'text-white' : 'text-dark'
                 }`}
               >
+                {/* POTENTIAL IDEA FOR SPRITE IMAGES TO DISPLAY (NEEDS WORK) <img src={pokemon.sprites.front_default} alt={pokemon.name} className='autocomplete-thumbnail' /> */}
                 {formatPokemonName(pokemon.name)}
               </ListGroup.Item>
             ))}
