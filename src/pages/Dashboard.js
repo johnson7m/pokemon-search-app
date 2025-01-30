@@ -27,7 +27,14 @@ import { usePageContext } from '../contexts/PageContext';
 
 const xpNeededForLevel = (lvl) => (lvl <= 1 ? 0 : 100 * (lvl - 1) ** 2);
 
-const Dashboard = () => {
+const variants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+};
+
+
+const Dashboard = React.memo(() => {
   const { theme } = useContext(ThemeContext);
   const { user } = useAuthContext();
   const { pageState } = usePageContext();
@@ -48,6 +55,15 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    console.log('Dashboard mounted');
+    return () => {
+      console.log('Dashboard unmounted');
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+  
     const fetchData = async () => {
       if (user) {
         try {
@@ -55,23 +71,29 @@ const Dashboard = () => {
             getUserStats(user.uid),
             getFavoritePokemon(),
           ]);
-
-          setStats(userStats);
-          setFavorites(userFavorites);
-
-          if (userFavorites.length > 0) {
-            const recommendedPokemon = await getRecommendedPokemon(userFavorites);
-            setRecommendations(recommendedPokemon);
+  
+          if (isMounted) {
+            setStats(userStats);
+            setFavorites(userFavorites);
+  
+            if (userFavorites.length > 0) {
+              const recommendedPokemon = await getRecommendedPokemon(userFavorites);
+              if (isMounted) setRecommendations(recommendedPokemon);
+            }
           }
         } catch (error) {
           console.error('Error fetching dashboard data:', error);
         } finally {
-          setLoading(false);
+          if (isMounted) setLoading(false);
         }
       }
     };
-
+  
     fetchData();
+  
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   if (!user) {
@@ -106,6 +128,14 @@ const Dashboard = () => {
   const xpToNext = nextLevelXpRequirement - xp;
 
   return (
+    <motion.div
+      key="dashboard"
+      variants={variants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={{ duration: 0.2 }}
+    >
     <Container data-bs-theme={theme} className="mt-5" aria-label="Dashboard">
       <h2>
         {user.displayName || 'New Trainer'}'s Dashboard!
@@ -232,7 +262,8 @@ const Dashboard = () => {
         </Col>
       </Row>
     </Container>
+    </motion.div>
   );
-};
+});
 
 export default Dashboard;

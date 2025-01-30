@@ -26,7 +26,17 @@ const Home = () => {
   const [isContentReady, setIsContentReady] = useState(false);
   const [error, setError] = useState(null);
 
+
+    useEffect(() => {
+      console.log('Home mounted');
+      return () => {
+        console.log('Home unmounted');
+      };
+    }, []);
+
   useEffect(() => {
+    let isMounted = true; // Flag to track if component is mounted
+
     const fetchUserData = async () => {
       if (user) {
         try {
@@ -34,34 +44,47 @@ const Home = () => {
             getFavoritePokemon(),
             getSearchHistory(),
           ]);
-          setFavorites(favs);
-          setSearchHistory(history);
+          if (isMounted) {
+            setFavorites(favs);
+            setSearchHistory(history);
+          }
         } catch (err) {
           console.error('Home: Error fetching user data:', err);
-          setError('Failed to load user data.');
+          if (isMounted) setError('Failed to load user data.');
         }
       }
     };
     fetchUserData();
+
+    return () => {
+      isMounted = false; // Cleanup flag on unmount
+    };
   }, [user]);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchRecommended = async () => {
       if (user && favorites.length > 0) {
         try {
           const recommendations = await getRecommendedPokemon(favorites);
-          setRecommendedPokemon(recommendations);
+          if (isMounted) setRecommendedPokemon(recommendations);
         } catch (err) {
           console.error('Home: Error fetching recommended Pokémon:', err);
-          setError('Failed to load recommended Pokémon.');
+          if (isMounted) setError('Failed to load recommended Pokémon.');
         }
       }
     };
     fetchRecommended();
+
+    return () => {
+      isMounted = false;
+    };
   }, [user, favorites]);
 
-
   useEffect(() => {
+    let isMounted = true;
+
     const checkLoading = () => {
       console.log('[checkLoading]:', {
         authLoading,
@@ -75,11 +98,17 @@ const Home = () => {
         if (favorites.length === 0 && searchHistory.length === 0) return;
         if (favorites.length > 0 && recommendedPokemon.length === 0) return;
       }
-      setIsDataLoading(false);
-      setIsContentReady(true);
+      if (isMounted) {
+        setIsDataLoading(false);
+        setIsContentReady(true);
+      }
     };
 
     checkLoading();
+
+    return () => {
+      isMounted = false;
+    };
   }, [authLoading, user, recommendedPokemon, favorites, searchHistory]);
 
   if (authLoading || isDataLoading) {
@@ -109,6 +138,14 @@ const Home = () => {
   }
 
   return (
+    <motion.div
+     key="home"
+     variants={variants}
+     initial="initial"
+     animate="animate"
+     exit='exit'
+     transition={{ duration: 0.2 }}
+    >
     <Container className={`home-content ${theme} mt-5`}>
 
 
@@ -168,6 +205,7 @@ const Home = () => {
         </motion.div>
       )}
     </Container>
+    </motion.div>
   );
 };
 

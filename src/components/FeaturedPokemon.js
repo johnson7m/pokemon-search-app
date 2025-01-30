@@ -105,25 +105,34 @@ const FeaturedPokemon = () => {
   // Error
   if (error) {
     return (
-      <Container>
-        <section className="mt-5">
-          <h2>Featured Pokémon</h2>
-          <div className="text-center mt-4 text-danger">
-            <p>{error}</p>
-            <Button
-              variant="primary"
-              onClick={() => {
-                setError(null);
-                setIsLoading(true);
-                setIsContentReady(false);
-                setFeaturedPokemon(null);
-              }}
-            >
-              Retry
-            </Button>
-          </div>
-        </section>
-      </Container>
+      <motion.div
+        key="featuredPokemon"
+        variants={variants}
+        initial="intiial"
+        animate="animate"
+        exit="exit"
+        transition={{ duration: 0.2 }}
+      >
+        <Container>
+          <section className="mt-5">
+            <h2>Featured Pokémon</h2>
+            <div className="text-center mt-4 text-danger">
+              <p>{error}</p>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setError(null);
+                  setIsLoading(true);
+                  setIsContentReady(false);
+                  setFeaturedPokemon(null);
+                }}
+              >
+                Retry
+              </Button>
+            </div>
+          </section>
+        </Container>
+      </motion.div>
     );
   }
 
@@ -146,85 +155,94 @@ const FeaturedPokemon = () => {
   const allStats = featuredPokemon?.stats || [];
 
   return (
-    <Container>
-      <h2>Featured Pokémon</h2>
-      <motion.section
-        className="mt-5"
-        variants={variants}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        transition={{ duration: 0.3 }}
-      >
-        <Card data-bs-theme={theme === 'light' ? 'light' : 'dark'} className="mb-3 featured-pokemon">
-          <Card.Body>
-            <Row className="align-items-center">
-              <Col xs={12} md={4} className="text-center mb-3">
-                <Card.Img
-                  src={
-                    featuredPokemon.sprites?.other?.['official-artwork']?.front_default ||
-                    featuredPokemon.sprites?.front_default
-                  }
-                  alt={featuredPokemon.name}
-                  className="img-fluid"
-                  style={{ maxWidth: '250px' }}
-                />
-              </Col>
-              <Col xs={12} md={8}>
-                <Card.Title as="h3" className="text-capitalize">
-                  {featuredPokemon.name}
-                </Card.Title>
-                <Card.Text>
-                  <strong>ID:</strong> {featuredPokemon.id}
-                </Card.Text>
-                <Card.Text>
-                  <strong>Type:</strong> {allTypes || 'Unknown'}
-                </Card.Text>
-                <Card.Text>
-                  <strong>Height:</strong> {featuredPokemon.height}
-                </Card.Text>
-                <Card.Text>
-                  <strong>Weight:</strong> {featuredPokemon.weight}
-                </Card.Text>
-
-                <h4>Stats</h4>
-                <Table striped bordered hover variant={theme}>
-                  <tbody>
-                    {allStats.length > 0 ? (
-                      allStats.map((stat) => (
-                        <tr key={stat.stat.name}>
-                          <td className="text-capitalize">{stat.stat.name}</td>
-                          <td>{stat.base_stat}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={2}>No stats found</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
-
-                <Button onClick={() => {
-                  selectPokemon(featuredPokemon);
-                }}variant="secondary" className="mt-3">
-                  View Details
-                </Button>
-
-                {species && species.flavor_text_entries && (
-                  <Card.Text className="mt-3">
-                    <strong>Description:</strong>{' '}
-                    {species.flavor_text_entries
-                      .find((entry) => entry.language.name === 'en')
-                      ?.flavor_text.replace(/[\n\f]/g, ' ') || 'Description not available'}
+    <motion.div
+      key="featuredPokemon"
+      variants={variants}
+      initial="intiial"
+      animate="animate"
+      exit="exit"
+      transition={{ duration: 0.2 }}
+    >
+      <Container>
+        <h2>Featured Pokémon</h2>
+        <motion.section
+          className="mt-5"
+          variants={variants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={{ duration: 0.3 }}
+        >
+          <Card data-bs-theme={theme === 'light' ? 'light' : 'dark'} className="mb-3 featured-pokemon">
+            <Card.Body>
+              <Row className="align-items-center">
+                <Col xs={12} md={4} className="text-center mb-3">
+                  <Card.Img
+                    src={
+                      featuredPokemon.sprites?.other?.['official-artwork']?.front_default ||
+                      featuredPokemon.sprites?.front_default
+                    }
+                    alt={featuredPokemon.name}
+                    className="img-fluid"
+                    style={{ maxWidth: '250px' }}
+                  />
+                </Col>
+                <Col xs={12} md={8}>
+                  <Card.Title as="h3" className="text-capitalize">
+                    {featuredPokemon.name}
+                  </Card.Title>
+                  <Card.Text>
+                    <strong>ID:</strong> {featuredPokemon.id}
                   </Card.Text>
-                )}
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
-      </motion.section>
-    </Container>
+                  <Card.Text>
+                    <strong>Type:</strong> {allTypes || 'Unknown'}
+                  </Card.Text>
+                  <Card.Text>
+                    <strong>Height:</strong> {featuredPokemon.height}
+                  </Card.Text>
+                  <Card.Text>
+                    <strong>Weight:</strong> {featuredPokemon.weight}
+                  </Card.Text>
+
+                  <h4>Stats</h4>
+                  <Table striped bordered hover variant={theme}>
+                    <tbody>
+                      {allStats.length > 0 ? (
+                        allStats.map((stat) => (
+                          <tr key={stat.stat.name}>
+                            <td className="text-capitalize">{stat.stat.name}</td>
+                            <td>{stat.base_stat}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={2}>No stats found</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </Table>
+
+                  <Button onClick={() => {
+                    selectPokemon(featuredPokemon);
+                  }}variant="secondary" className="mt-3">
+                    View Details
+                  </Button>
+
+                  {species && species.flavor_text_entries && (
+                    <Card.Text className="mt-3">
+                      <strong>Description:</strong>{' '}
+                      {species.flavor_text_entries
+                        .find((entry) => entry.language.name === 'en')
+                        ?.flavor_text.replace(/[\n\f]/g, ' ') || 'Description not available'}
+                    </Card.Text>
+                  )}
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+        </motion.section>
+      </Container>
+    </motion.div>
   );
 };
 

@@ -1,5 +1,5 @@
 // src/pages/HeroPage.js
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ThemeContext } from '../contexts/ThemeContext';
@@ -15,6 +15,8 @@ import useOverlayVisibility from '../hooks/useOverlayVisibility';
 
 import './HeroPage.css';
 import AccessibilityToggleFixed from '../components/AccessibilityToggleFixed';
+import CustomParticles from '../utils/particles';
+
 
 const containerVariants = {
   hidden: { opacity: 0, y: 40 },
@@ -56,6 +58,7 @@ const Hero = () => {
   const navigate = useNavigate();
   const [heroSelectedPokemon, setHeroSelectedPokemon] = React.useState(null);
 
+
   // Overlays logic (show/hide top & bottom)
   const { isVisible } = useOverlayVisibility();
 
@@ -65,6 +68,8 @@ const Hero = () => {
     }
   }, [user, navigate]);
 
+
+
   const handlePokemonSelect = (pokemon) => {
     setHeroSelectedPokemon(pokemon);
   };
@@ -73,6 +78,7 @@ const Hero = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
 
   return (
     <div

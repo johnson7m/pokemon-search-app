@@ -13,11 +13,7 @@ import FeaturedPokemon from '../components/FeaturedPokemon';
 import PokemonDetailPage from './PokemonDetailPage';
 import { useAuthContext } from '../contexts/AuthContext';
 
-const variants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-};
+
 
 const MainHomePage = () => {
   const { theme } = useContext(ThemeContext);
@@ -53,16 +49,7 @@ const MainHomePage = () => {
 
         {/* AnimatePresence handles mounting and unmounting animations */}
         <AnimatePresence mode="wait">
-          <motion.div
-            key={pageState}
-            variants={variants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={{ duration: 0.1 }}
-          >
             {renderSelectedContent()}
-          </motion.div>
         </AnimatePresence>
       </Container>
     </PokemonProvider>

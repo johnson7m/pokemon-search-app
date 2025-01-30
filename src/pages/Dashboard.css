@@ -13,7 +13,7 @@
 .dashboard-card:hover {
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
   transform: translateY(-2px);
-  transition: 0.2s ease-in-out;
+  transition: 0.3s ease-in-out;
 }
 
 /* Ensure carousel cards take full width of container */

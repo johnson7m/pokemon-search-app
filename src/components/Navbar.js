@@ -34,9 +34,7 @@ const CustomNavbar = ({ scrolled }) => {
   const xpRange = nextLevelXpRequirement - currentLevelXpMin;
   const xpProgress = xp - currentLevelXpMin;
 
-  if (location.pathname === '/') {
-    return null;
-  }
+
 
   return (
     <>
@@ -181,15 +179,6 @@ const CustomNavbar = ({ scrolled }) => {
                   aria-label="Go to Profile"
                 >
                   Profile
-                </Nav.Link>
-                <Nav.Link
-                  style={{ color: theme === 'light' ? 'black' : 'white' }}
-                  as={Link}
-                  to="/search"
-                  onClick={handleClose}
-                  aria-label="Go to Search"
-                >
-                  Search
                 </Nav.Link>
                 <Nav.Link
                   style={{ color: theme === 'light' ? 'black' : 'white' }}

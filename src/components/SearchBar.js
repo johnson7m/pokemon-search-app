@@ -20,6 +20,7 @@ import PokemonGrid from './PokemonGrid';
 import { usePokemonSearch } from '../hooks/usePokemonSearch';
 import { usePokemonContext } from '../contexts/PokemonContext';
 import { useAuthContext } from '../contexts/AuthContext';
+import { debounce } from 'lodash';
 import './SearchBar.css';
 import { FaMoon, FaSun } from 'react-icons/fa';
 
@@ -74,6 +75,10 @@ const SearchBar = ({ onPokemonSelect }) => {
     handleSelect(pokemon);
     setShowAdvancedSearch(false);
   };
+
+  const handleNavigation = debounce((newPageState) => {
+    setPageState(newPageState);
+  }, 0);
 
   const handleSelect = async (pokemonObject) => {
     selectPokemon(pokemonObject);
@@ -168,7 +173,7 @@ const SearchBar = ({ onPokemonSelect }) => {
               <Button
                 variant={theme === 'light' ? 'dark' : 'light'}
                 active={pageState === 'home'}
-                onClick={() => setPageState('home')}
+                onClick={() => handleNavigation('home')}
                 className="me-2"
                 aria-label="Go Home"
               >
@@ -178,7 +183,7 @@ const SearchBar = ({ onPokemonSelect }) => {
               <Button
                 variant={theme === 'light' ? 'dark' : 'light'}
                 active={pageState === 'dashboard'}
-                onClick={() => setPageState('dashboard')}
+                onClick={() => handleNavigation('dashboard')}
                 className="me-2"
                 aria-label="Go to Dashboard"
               >
@@ -188,7 +193,7 @@ const SearchBar = ({ onPokemonSelect }) => {
               <Button
                 variant={theme === 'light' ? 'dark' : 'light'}
                 active={pageState === 'pokemon'}
-                onClick={() => setPageState('pokemon')}
+                onClick={() => handleNavigation('pokemon')}
                 className="me-2"
                 aria-label="View Pokémon"
               >
