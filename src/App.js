@@ -10,6 +10,7 @@ import { savePokemonToCache, clearCache, getPokemonByIdOrName } from './utils/po
 import axios from 'axios';
 import useScrollPosition from './hooks/useScrollPosition.js';
 import './App.css';
+import ScrollToTop from './components/ScrollToTop.js';
 
 function App() {
   const { theme } = useContext(ThemeContext);
@@ -40,6 +41,7 @@ function App() {
         {/* This ToastPortal is fully controlled by XpProvider (XpContext) */}
         <ToastPortal />
         <AnimatedRoutes />
+        <ScrollToTop/>
       </div>
     </Router>
   );
