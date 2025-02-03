@@ -15,7 +15,6 @@ import useOverlayVisibility from '../hooks/useOverlayVisibility';
 
 import './HeroPage.css';
 import AccessibilityToggleFixed from '../components/AccessibilityToggleFixed';
-import CustomParticles from '../utils/particles';
 
 
 const containerVariants = {
@@ -49,6 +48,47 @@ const textVariants = {
     opacity: 1,
     y: 0,
     transition: { duration: 0.6, ease: 'easeOut' },
+  },
+};
+
+
+const signUpButtonVariants = {
+  rest: {
+    boxShadow: "none",
+    scale: 1,
+    transition: { duration: 0.3, ease: "easeOut" },
+  },
+  hover: {
+    // “Pulsing” outer glow
+    boxShadow: "0 0 15px rgba(255, 255, 255, 0.6)",
+    scale: 1.02,
+
+    transition: {
+      duration: 0.8,
+      // yoyos the animation (pulse in & out)
+      repeat: Infinity,
+      repeatType: "reverse",
+    },
+  },
+};
+
+const loginButtonVariants = {
+  rest: {
+    boxShadow: "none",
+    scale: 1,
+    transition: { duration: 0.3, ease: "easeOut" },
+  },
+  hover: {
+    // “Pulsing” outer glow
+    boxShadow: "0 0 15px rgba(255, 255, 255, 0.6)",
+    scale: 1.02,
+
+    transition: {
+      duration: 0.8,
+      // yoyos the animation (pulse in & out)
+      repeat: Infinity,
+      repeatType: "reverse",
+    },
   },
 };
 
@@ -330,25 +370,41 @@ const Hero = () => {
               animate="visible"
               className="cta-buttons"
             >
-              <Button
-                as={Link}
-                to="/signup"
-                variant={theme === 'light' ? 'dark' : 'light'}
-                size="lg"
-                className="me-3"
-                aria-label="Sign up now"
+              <motion.div
+                className="d-inline-block rounded me-3"
+                variants={signUpButtonVariants}
+                initial="rest"
+                whileHover="hover"
+                whileTap="hover"
               >
-                Sign Up Now
-              </Button>
-              <Button
-                as={Link}
-                to="/login"
-                variant={theme === 'light' ? 'outline-dark' : 'outline-light'}
-                size="lg"
-                aria-label="Log in"
+                <Button
+                  as={Link}
+                  to="/signup"
+                  variant={theme === 'light' ? 'dark' : 'light'}
+                  size="lg"
+                  aria-label="Sign up now"
+                >
+                  Sign Up Now
+                </Button>
+              </motion.div>
+
+              <motion.div
+                className="d-inline-block rounded"
+                variants={loginButtonVariants}
+                initial="rest"
+                whileHover="hover"
+                whileTap="hover"
               >
-                Log In
-              </Button>
+                <Button
+                  as={Link}
+                  to="/login"
+                  variant={theme === 'light' ? 'outline-dark' : 'outline-light'}
+                  size="lg"
+                  aria-label="Log in"
+                >
+                  Log In
+                </Button>
+              </motion.div>
             </motion.div>
           </motion.div>
         </Container>

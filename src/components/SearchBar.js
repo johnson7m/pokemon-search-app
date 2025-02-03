@@ -78,7 +78,7 @@ const SearchBar = ({ onPokemonSelect }) => {
 
   const handleNavigation = debounce((newPageState) => {
     setPageState(newPageState);
-  }, 0);
+  }, 50);
 
   const handleSelect = async (pokemonObject) => {
     selectPokemon(pokemonObject);
@@ -375,4 +375,4 @@ const SearchBar = ({ onPokemonSelect }) => {
   );
 };
 
-export default SearchBar;
+export default React.memo(SearchBar);
