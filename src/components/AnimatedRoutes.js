@@ -11,7 +11,6 @@ const MainHomePage = lazy(() => import('../pages/MainHomePage'));
 const Login = lazy(() => import('./Login'));
 const SignUp = lazy(() => import('./SignUp'));
 const PokemonDetailPage = lazy(() => import('../pages/PokemonDetailPage'));
-const Account = lazy(() => import('../pages/Account'));
 const SelectFeaturedPokemon = lazy(() => import('./SelectFeaturedPokemon'));
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 
@@ -194,29 +193,6 @@ const AnimatedRoutes = () => {
                 transition={pageTransition}
               >
                 <PokemonDetailPage />
-              </motion.div>
-            </Suspense>
-          }
-        />
-        <Route
-          path="/account"
-          element={
-            <Suspense
-              fallback={
-                <LoadingOverlay
-                  type="spinner"
-                  message="Loading Account..."
-                />
-              }
-            >
-              <motion.div
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={pageVariants}
-                transition={pageTransition}
-              >
-                <Account />
               </motion.div>
             </Suspense>
           }

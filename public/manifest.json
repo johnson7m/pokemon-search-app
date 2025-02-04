@@ -1,6 +1,6 @@
 {
   "short_name": "Pokemon Search",
-  "name": "Pokemone Search Index",
+  "name": "Pokémon Search App",
   "icons": [],
   "start_url": ".",
   "display": "standalone",
