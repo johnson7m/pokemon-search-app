@@ -1,0 +1,34 @@
+/* src/components/TasksToggleFixed.css */
+.tasks-toggle-fixed {
+    position: fixed;
+    top: 140px; /* so it doesn't overlap theme or accessibility toggles */
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .tasks-toggle-fixed:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .tasks-toggle-fixed:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+  }
+  
+  .tasks-toggle-fixed svg {
+    width: 20px;
+    height: 20px;
+  }
+  

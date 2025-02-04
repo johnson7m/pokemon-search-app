@@ -264,3 +264,88 @@ export const getFavoritesCount = async (userId) => {
   const snap = await getDocs(q);
   return snap.size;
 };
+
+const sampleTasks = [
+  // Daily
+  {
+    title: "Splash in the Water",
+    description: "Search for 3 Water-type Pokémon today!",
+    taskType: "daily",
+    category: "search",
+    difficulty: "easy",
+    xpReward: 50,
+    progressType: "search",
+    progressGoal: 3
+  },
+  {
+    title: "Johto Gym Trivia",
+    description: "Answer the Johto region trivia question correctly.",
+    taskType: "daily",
+    category: "trivia",
+    difficulty: "medium",
+    xpReward: 75,
+    question: "Who is the 4th gym leader in Johto?",
+    options: ["Morty", "Whitney", "Jasmine", "Eusine"],
+    correctAnswer: "Morty"
+  },
+  {
+    title: "Rise in the Ranks",
+    description: "Increase your 'WaterEnjoyers' leaderboard rank by 1.",
+    taskType: "daily",
+    category: "challenge",
+    difficulty: "hard",
+    xpReward: 100,
+    leaderboardName: "WaterEnjoyers",
+    rankChangeGoal: 1
+  },
+  // Weekly
+  {
+    title: "Evolution Marathon",
+    description: "Search for 10 Pokémon with 2-stage evolutions within the week.",
+    taskType: "weekly",
+    category: "search",
+    difficulty: "medium",
+    xpReward: 200,
+    progressType: "search",
+    progressGoal: 10
+  },
+  {
+    title: "Kanto Knowledge",
+    description: "Answer 3 random Kanto trivia questions correctly this week.",
+    taskType: "weekly",
+    category: "trivia",
+    difficulty: "hard",
+    xpReward: 250,
+    questionCountGoal: 3
+  },
+  // Monthly
+  {
+    title: "Monthly Mega Challenge",
+    description: "Accumulate 50 searches and win 5 trivia questions in 30 days.",
+    taskType: "monthly",
+    category: "challenge",
+    difficulty: "hard",
+    xpReward: 500,
+    searchRequirement: 50,
+    triviaRequirement: 5
+  }
+];
+
+/**
+ * A quick method to seed the sampleTasks array into Firestore's "tasks" collection.
+ * 
+ * NOTE: Running this multiple times will create duplicate documents.
+ * Use caution or build a check to avoid duplicates.
+ */
+export const seedSampleTasks = async () => {
+  try {
+    const tasksRef = collection(db, 'tasks');
+    for (const task of sampleTasks) {
+      await addDoc(tasksRef, task);
+      console.log('Seeded task:', task.title);
+    }
+    console.log('All sample tasks seeded successfully!');
+  } catch (error) {
+    console.error('Error seeding sample tasks:', error);
+  }
+};

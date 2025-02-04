@@ -24,6 +24,7 @@ import LeaderboardWidget from '../components/LeaderboardWidget';
 import './Dashboard.css';
 import { motion } from 'framer-motion';
 import { usePageContext } from '../contexts/PageContext';
+import { seedSampleTasks } from '../services/firestoreService';
 
 const xpNeededForLevel = (lvl) => (lvl <= 1 ? 0 : 100 * (lvl - 1) ** 2);
 
@@ -43,6 +44,10 @@ const Dashboard = React.memo(() => {
   const [favorites, setFavorites] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const handleSeedTasks = async () => {
+    await seedSampleTasks();
+  }
 
   const handleSyncWaterCounts = async () => {
     try {

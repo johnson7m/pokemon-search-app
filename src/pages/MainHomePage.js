@@ -1,5 +1,5 @@
 // src/pages/MainHomePage.js
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,13 +12,22 @@ import { PokemonProvider } from '../contexts/PokemonContext';
 import FeaturedPokemon from '../components/FeaturedPokemon';
 import PokemonDetailPage from './PokemonDetailPage';
 import { useAuthContext } from '../contexts/AuthContext';
-
-
+import TasksToggleFixed from '../components/TasksToggleFixed';
+import TasksOverlay from '../components/TasksOverlay';
 
 const MainHomePage = () => {
   const { theme } = useContext(ThemeContext);
   const { pageState } = usePageContext();
   const { user } = useAuthContext();
+  const [showTasksOverlay, setShowTasksOverlay] = useState(false);
+
+  const handleToggleTasks = (open) => {
+    setShowTasksOverlay(open);
+  };
+
+  const closeOverlay = () => {
+    setShowTasksOverlay(false);
+  };
 
   const renderSelectedContent = () => {
     switch (pageState) {
@@ -46,6 +55,16 @@ const MainHomePage = () => {
 
         {/* Persistent Search */}
         <SearchBar />
+
+        {/* Task Toggle Button */}
+        <TasksToggleFixed onToggle={handleToggleTasks}/>
+
+        {/* The overlay that appears */}
+        <AnimatePresence>
+          {showTasksOverlay && (
+            <TasksOverlay show={showTasksOverlay} onClose={closeOverlay} />
+          )}
+        </AnimatePresence>        
 
         {/* AnimatePresence handles mounting and unmounting animations */}
         <AnimatePresence mode="wait">

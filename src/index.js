@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { XpProvider } from './contexts/XpContext';
 import { UserStatsProvider } from './contexts/UserStatsContext';
 import { LoadingProvider } from './contexts/LoadingContext';
+import { TasksProvider } from './contexts/TasksContext';
 
 const queryClient = new QueryClient();
 
@@ -24,9 +25,11 @@ root.render(
           <UserStatsProvider>
             <PageProvider>
               <XpProvider>
-                <QueryClientProvider client={queryClient}>
-                  <App />
-                </QueryClientProvider>
+                <TasksProvider>
+                  <QueryClientProvider client={queryClient}>
+                    <App />
+                  </QueryClientProvider>
+                </TasksProvider>
               </XpProvider>
             </PageProvider>
           </UserStatsProvider>
