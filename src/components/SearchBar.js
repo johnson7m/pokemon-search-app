@@ -200,16 +200,14 @@ const SearchBar = ({ onPokemonSelect }) => {
                 <i className="bi bi-collection" />
                 <span className="d-none d-md-inline"> Pokémon</span>
               </Button>
+              <Button
+                variant={theme === 'light' ? 'dark' : 'light'}
+                onClick={toggleTheme}
+                aria-label={`Toggle to ${theme === 'light' ? 'dark' : 'light'} theme`}
+              >
+                {theme === 'light' ? <FaMoon /> : <FaSun />}
+              </Button>                        
             </>
-          )}
-          {user && (
-            <Button
-              variant={theme === 'light' ? 'dark' : 'light'}
-              onClick={toggleTheme}
-              aria-label={`Toggle to ${theme === 'light' ? 'dark' : 'light'} theme`}
-            >
-              {theme === 'light' ? <FaMoon /> : <FaSun />}
-            </Button>
           )}
         </Col>
       </Row>
