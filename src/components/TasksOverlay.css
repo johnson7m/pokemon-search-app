@@ -1,11 +1,20 @@
 /* src/components/TasksOverlay.css */
+
+/* The “backdrop” still dims the page, but we also add a blur effect. */
 .tasks-overlay-backdrop {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.6);
+  
+    /* Instead of a solid black, do a partial transparent background. */
+    background-color: rgba(0, 0, 0, .5);
+  
+    /* The magic blur line: */
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+  
     z-index: 99999; /* above everything else */
     display: flex;
     align-items: center;
@@ -13,27 +22,48 @@
   }
   
   .tasks-overlay-container {
-    background: #f5f5f5;
     color: #333;
     width: 90%;
     max-width: 1200px;
     border-radius: 8px;
     padding: 1rem;
-    position: relative; 
-    overflow-y: auto;
+    position: relative;
     max-height: 90vh;
   }
   
   .tasks-overlay-close {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    top: -3rem;
+    right: 0rem;
     font-size: 1.2rem;
+    z-index: 999999;
   }
   
+
+  .nav-dark {
+    border-color: #474a4e;
+  }
+
+  .nav-dark .nav-link.active {
+    background-color: #272b2f !important;
+    border-color: #474a4e;
+  }
+  
+  .nav-dark .nav-link {
+    border-color: #474a4e;
+  }
+
+  .nav-light .nav-link.active {
+    background-color: transparent !important;
+    border-bottom: none;
+  }
+
+
+  /* For smaller screens, we still want a nice layout. */
   @media (max-width: 768px) {
     .tasks-overlay-container {
       width: 95%;
+      max-width: 95%;
     }
   }
   

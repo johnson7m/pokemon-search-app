@@ -21,8 +21,8 @@ const MainHomePage = () => {
   const { user } = useAuthContext();
   const [showTasksOverlay, setShowTasksOverlay] = useState(false);
 
-  const handleToggleTasks = (open) => {
-    setShowTasksOverlay(open);
+  const handleToggleTasks = () => {
+    setShowTasksOverlay((prev) => !prev);
   };
 
   const closeOverlay = () => {
