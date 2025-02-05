@@ -134,7 +134,7 @@ export const TasksProvider = ({ children }) => {
    * For tasks that are completed via a single event (e.g., finishing a trivia question),
    * you can call completeTask to set isCompleted=true, completedAt, and award XP.
    */
-  const completeTask = async (acceptedTask) => {
+  const completeTask = async (acceptedTask, xpTrigger) => {
     if (!user) return;
     try {
       const acceptedDocRef = doc(db, 'userTasks', user.uid, 'acceptedTasks', acceptedTask.id);
@@ -144,7 +144,7 @@ export const TasksProvider = ({ children }) => {
       });
       // Award XP
       if (acceptedTask.xpReward) {
-        await addXp(user.uid, acceptedTask.xpReward);
+        await addXp(user.uid, acceptedTask.xpReward, xpTrigger);
       }
 
       await updateUserStats(user.uid, {

@@ -27,7 +27,7 @@ const ToastPortal = () => {
         position: 'fixed',
         bottom: '1rem',
         right: '1rem',
-        zIndex: 9999,
+        zIndex: 9999999,
         backgroundColor: '#FF1493',
         color: '#fff',
         fontWeight: 'bold',

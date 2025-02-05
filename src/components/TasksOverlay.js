@@ -15,6 +15,7 @@ import { motion } from 'framer-motion';
 import { useTasksContext } from '../contexts/TasksContext';
 import useMediaQuery from '../hooks/useMediaQuery';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { useXpContext } from '../contexts/XpContext';
 
 import './TasksOverlay.css';
 
@@ -27,6 +28,7 @@ const TasksOverlay = ({ show, onClose }) => {
     completeTask,
     acceptTask,
   } = useTasksContext();
+  const { xpTrigger } = useXpContext();
 
   const { theme } = useContext(ThemeContext);
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -119,7 +121,7 @@ const TasksOverlay = ({ show, onClose }) => {
                     />
                     <Button
                       variant="success"
-                      onClick={() => completeTask(acceptedTask)}
+                      onClick={() => completeTask(acceptedTask, xpTrigger)}
                     >
                       Complete
                     </Button>
