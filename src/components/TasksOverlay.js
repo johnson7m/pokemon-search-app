@@ -150,8 +150,7 @@ const TasksOverlay = ({ show, onClose }) => {
           {/* Close button row */}
           <Row className="justify-content-end mb-2">
             <Col xs="auto">
-              <Button variant="outline-danger" onClick={onClose}>
-                X
+              <Button variant="close" onClick={onClose}>
               </Button>
             </Col>
           </Row>
