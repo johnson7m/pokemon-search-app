@@ -45,6 +45,8 @@ export const checkAndRefreshTasks = async (userId) => {
     // Update lastMonthlyHours = now
     await updateDoc(userStatsRef, { lastMonthlyRefresh: new Date() });
   }
+
+  console.log('Tasks refreshed!')
 };
 
 const clearAcceptedTasks = async (userId, taskType) => {

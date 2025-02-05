@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuthContext } from './AuthContext';
+import { updateUserStats } from '../services/statisticsService';
 // If you have an XP awarding service or function:
 import { addXp } from '../services/statisticsService';
 
@@ -107,26 +108,23 @@ export const TasksProvider = ({ children }) => {
     if (!user) return;
     try {
       const acceptedDocRef = doc(db, 'userTasks', user.uid, 'acceptedTasks', acceptedTask.id);
-
+  
       const newProgress = (acceptedTask.currentProgress || 0) + incrementBy;
-      // If newProgress >= progressGoal => mark as completed
       let updates = {
         currentProgress: newProgress,
       };
-      if (newProgress >= (acceptedTask.progressGoal || 0)) {
-        updates = {
-          ...updates,
-          isCompleted: true,
-          completedAt: new Date(),
-        };
-        // Optionally award XP right here or in completeTask()
+  
+      // If we've reached or exceeded the goal, mark as completed
+      if (newProgress >= (acceptedTask.progressGoal || 1)) {
+        updates.isCompleted = true;
+        updates.completedAt = new Date();
+        // Award XP here or in "completeTask" if you prefer
         if (acceptedTask.xpReward) {
           await addXp(user.uid, acceptedTask.xpReward);
         }
       }
-
+  
       await updateDoc(acceptedDocRef, updates);
-      console.log(`Updated progress for: ${acceptedTask.title}`);
     } catch (error) {
       console.error('Error updating task progress:', error);
     }
@@ -148,6 +146,10 @@ export const TasksProvider = ({ children }) => {
       if (acceptedTask.xpReward) {
         await addXp(user.uid, acceptedTask.xpReward);
       }
+
+      await updateUserStats(user.uid, {
+        tasksCompleted: + 1,
+      });
       console.log(`Completed task: ${acceptedTask.title}`);
     } catch (error) {
       console.error('Error completing task:', error);

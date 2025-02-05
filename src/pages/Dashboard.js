@@ -25,6 +25,7 @@ import './Dashboard.css';
 import { motion } from 'framer-motion';
 import { usePageContext } from '../contexts/PageContext';
 import { seedSampleTasks } from '../services/firestoreService';
+import { checkAndRefreshTasks } from '../services/tasksRefreshService';
 
 const xpNeededForLevel = (lvl) => (lvl <= 1 ? 0 : 100 * (lvl - 1) ** 2);
 
@@ -47,6 +48,11 @@ const Dashboard = React.memo(() => {
 
   const handleSeedTasks = async () => {
     await seedSampleTasks();
+  }
+
+  const handleTestRefresh = async () => {
+    await checkAndRefreshTasks(user.uid);
+    alert('Refresh test complete!');
   }
 
   const handleSyncWaterCounts = async () => {
@@ -168,6 +174,7 @@ const Dashboard = React.memo(() => {
               >
                 Manage Profile
               </Button>
+              <Button onClick={handleTestRefresh}>testbutton</Button>
             </Card.Body>
           </Card>
         </Col>
