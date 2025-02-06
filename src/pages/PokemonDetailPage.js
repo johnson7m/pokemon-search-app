@@ -21,7 +21,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { useXpContext } from '../contexts/XpContext';
 import './PokemonDetailPage.css';
 import { usePokemonContext } from '../contexts/PokemonContext';
-import { getPokemonByIdOrName } from '../utils/pokemonCache';
+import { fetchAndCachePokemonByIdOrName } from '../utils/pokemonCache';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const containerVariants = {
@@ -65,7 +65,7 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
       setPokemon(selectedPokemon);
     } else {
       const fetchFallback = async () => {
-        const fallback = await getPokemonByIdOrName('pikachu');
+        const fallback = await fetchAndCachePokemonByIdOrName('pikachu');
         if (fallback) {
           setPokemon(fallback);
         }
@@ -90,21 +90,25 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
   // Fetch species + evolution chain
   useEffect(() => {
     const fetchSpecies = async () => {
-      if (!pokemon?.id) return;
+      // Use the species URL provided by the Pokémon object, not constructing from pokemon.id.
+      if (!pokemon?.species?.url) return;
+      
+      // Clear old data so stale evolution chains aren’t shown.
+      setSpecies(null);
+      setEvolutionChain(null);
+
       try {
-        const response = await axios.get(
-          `https://pokeapi.co/api/v2/pokemon-species/${pokemon.id}`
-        );
+        const response = await axios.get(pokemon.species.url);
         setSpecies(response.data);
 
-        // Evolution chain
+        // Fetch evolution chain using the species data.
         const evolutionResponse = await axios.get(response.data.evolution_chain.url);
         setEvolutionChain(evolutionResponse.data);
       } catch (error) {
         console.error('Error fetching Pokémon species data:', error);
       }
     };
-    if (pokemon?.id) {
+    if (pokemon) {
       fetchSpecies();
     }
   }, [pokemon]);
@@ -183,7 +187,6 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
     }
   };
 
-  // Evolution chain rendering
   const renderEvolutionChain = () => {
     if (!evolutionChain) return null;
 
@@ -192,11 +195,9 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
 
     do {
       const speciesName = evoData.species.name;
-      const speciesUrl = evoData.species.url;
-      const speciesId = speciesUrl.split('/').slice(-2, -1)[0];
-
+      // Extract the ID from the species URL.
+      const speciesId = evoData.species.url.split('/').filter(Boolean).pop();
       evoChain.push({ speciesName, speciesId });
-
       evoData = evoData.evolves_to[0];
     } while (evoData && evoData.hasOwnProperty('evolves_to'));
 
@@ -213,7 +214,7 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
                     alt={evo.speciesName}
                     className="evolution-image mb-2"
                     onClick={async () => {
-                      const evoPoke = await getPokemonByIdOrName(evo.speciesId);
+                      const evoPoke = await fetchAndCachePokemonByIdOrName(evo.speciesId);
                       selectPokemon(evoPoke);
                     }}
                   />
@@ -463,7 +464,7 @@ const PokemonDetailPage = ({ propPokemon, onBack }) => {
                           <Card
                             className="h-100 text-center shadow-sm pokemon-card"
                             onClick={async () => {
-                              const altPoke = await getPokemonByIdOrName(
+                              const altPoke = await fetchAndCachePokemonByIdOrName(
                                 alt.name
                               );
                               selectPokemon(altPoke);

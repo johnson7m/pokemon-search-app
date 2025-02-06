@@ -2,7 +2,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { debounce } from 'lodash';
 import { getFilterData } from '../utils/filterCache';
-import { getAllPokemon, getPokemonByIdOrName } from '../utils/pokemonCache';
+import { getAllPokemon, fetchAndCachePokemonByIdOrName} from '../utils/pokemonCache';
 import { saveSearchHistory } from '../services/firestoreService';
 import axios from 'axios';
 
@@ -145,7 +145,7 @@ export function usePokemonSearch(xpTrigger) {
 
       try {
         if (isNumeric) {
-          const pokemonById = await getPokemonByIdOrName(inputValue);
+          const pokemonById = await fetchAndCachePokemonByIdOrName(inputValue);
           if (pokemonById) {
             results.push({ 
                 name: pokemonById.name, 
@@ -175,7 +175,7 @@ export function usePokemonSearch(xpTrigger) {
   const handleSelectAutocomplete = async (pokemon) => {
     try {
       if (!pokemon?.name) return;
-      const selectedPokemon = await getPokemonByIdOrName(pokemon.name);
+      const selectedPokemon = await fetchAndCachePokemonByIdOrName(pokemon.name);
       if (!selectedPokemon) {
         setErrorMessage(`No Pokémon data found for "${pokemon.name}".`);
         return null;
@@ -319,8 +319,8 @@ export function usePokemonSearch(xpTrigger) {
         const detailedResults = await Promise.all(
             nextBatch.map(async (name) => {
               try {
-                const data = await getPokemonByIdOrName(name);
-                console.log(`[AdvancedSearch] getPokemonByIdOrName("${name}") =>`, data);
+                const data = await fetchAndCachePokemonByIdOrName(name);
+                console.log(`[AdvancedSearch] fetchAndCachePokemonByIdOrName("${name}") =>`, data);
                 return data; // or null
               } catch (err) {
                 console.error(`[AdvancedSearch] Error fetching Pokémon "${name}"`, err);

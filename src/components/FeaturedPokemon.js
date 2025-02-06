@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 import './FeaturedPokemon.css'; // Custom CSS
-import { savePokemonToCache, getPokemonByIdOrName } from '../utils/pokemonCache';
+import { savePokemonToCache, fetchAndCachePokemonByIdOrName } from '../utils/pokemonCache';
 
 const variants = {
   initial: { opacity: 0, y: 10 },
@@ -37,7 +37,7 @@ const FeaturedPokemon = () => {
 
       const randomId = Math.floor(Math.random() * 898) + 1;
       try {
-        const cachedData = await getPokemonByIdOrName(randomId);
+        const cachedData = await fetchAndCachePokemonByIdOrName(randomId);
         if (cachedData) {
           setFeaturedPokemon(cachedData);
           setSpecies(cachedData.speciesData);

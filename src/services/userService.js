@@ -1,31 +1,45 @@
-// src/services/userService.js
 import { db } from '../firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
+import { firestoreOperation } from '../utils/firestoreWrapper';
 
-/**
- * Save user preferences in userPreferences/{userId}.
- */
 export const saveUserPreferences = async (userId, preferences) => {
   try {
     const userPrefsRef = doc(db, 'userPreferences', userId);
-    await setDoc(userPrefsRef, preferences, { merge: true });
+    const keySetDoc = `saveUserPreferences_setDoc_${userId}`;
+    await firestoreOperation(
+      'setDoc',
+      keySetDoc,
+      'saveUserPreferences',
+      {},
+      userPrefsRef,
+      preferences,
+      { merge: true }
+    );
   } catch (error) {
     console.error('Error saving user preferences:', error);
   }
 };
 
-/**
- * Get user preferences from userPreferences/{userId}.
- * Returns a default object if none exist.
- */
 export const getUserPreferences = async (userId) => {
   try {
     const userPrefsRef = doc(db, 'userPreferences', userId);
-    const docSnap = await getDoc(userPrefsRef);
-    if (docSnap.exists()) {
-      return docSnap.data();
+    const keyGetDoc = `getUserPreferences_getDoc_${userId}`;
+    const docSnap = await firestoreOperation(
+      'getDoc',
+      keyGetDoc,
+      'getUserPreferences',
+      {
+        useCache: true,
+        transformResult: (docSnap) => ({
+          exists: docSnap.exists(),
+          data: docSnap.exists() ? docSnap.data() : null,
+        }),
+      },
+      userPrefsRef
+    );
+    if (docSnap.exists) {
+      return docSnap.data;
     } else {
-      // Return default preferences
       return { emailNotifications: true };
     }
   } catch (error) {
@@ -34,29 +48,43 @@ export const getUserPreferences = async (userId) => {
   }
 };
 
-/**
- * Create or update the doc in users/{userId} with new displayName (and optionally other fields).
- * Using merge: true ensures we never overwrite existing fields unless we specify them.
- */
 export const updateUserProfileInFirestore = async (userId, profileData) => {
   try {
     const userRef = doc(db, 'users', userId);
-    await setDoc(userRef, profileData, { merge: true });
-    // e.g. profileData = { displayName: "Ash Ketchum", email: "ash@poke.com" }
+    const keySetDoc = `updateUserProfileInFirestore_setDoc_${userId}`;
+    await firestoreOperation(
+      'setDoc',
+      keySetDoc,
+      'updateUserProfileInFirestore',
+      {},
+      userRef,
+      profileData,
+      { merge: true }
+    );
   } catch (error) {
     console.error('Error updating user profile in Firestore:', error);
   }
 };
 
-/**
- * Retrieve the user doc from users/{userId}.
- */
 export const getUserProfileFromFirestore = async (userId) => {
   try {
     const userRef = doc(db, 'users', userId);
-    const snapshot = await getDoc(userRef);
-    if (snapshot.exists()) {
-      return snapshot.data(); // e.g. { displayName: "Ash", email: "...", etc. }
+    const keyGetDoc = `getUserProfileFromFirestore_getDoc_${userId}`;
+    const snapshot = await firestoreOperation(
+      'getDoc',
+      keyGetDoc,
+      'getUserProfileFromFirestore',
+      {
+        useCache: true,
+        transformResult: (docSnap) => ({
+          exists: docSnap.exists(),
+          data: docSnap.exists() ? docSnap.data() : null,
+        }),
+      },
+      userRef
+    );
+    if (snapshot.exists) {
+      return snapshot.data;
     } else {
       return null;
     }

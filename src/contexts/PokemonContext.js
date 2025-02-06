@@ -1,7 +1,7 @@
 // src/contexts/PokemonContext.js
 import React, { createContext, useState, useContext } from 'react';
 import { usePageContext } from './PageContext'; // if you want to set 'pokemonDetail' pageState
-import { getPokemonByIdOrName } from '../utils/pokemonCache';
+import { fetchAndCachePokemonByIdOrName } from '../utils/pokemonCache';
 
 const PokemonContext = createContext();
 
@@ -19,7 +19,7 @@ export const PokemonProvider = ({ children }) => {
   function selectPokemon(partialPokemon) {
     // partialPokemon: { name, id, sprites, types: ['water','flying'] } 
     // or maybe the PokeAPI shape if it's from advanced search
-    getPokemonByIdOrName(partialPokemon.id).then((fullData) => {
+    fetchAndCachePokemonByIdOrName(partialPokemon.id).then((fullData) => {
       setSelectedPokemon(fullData);
       setPageState('pokemonDetail'); 
     });

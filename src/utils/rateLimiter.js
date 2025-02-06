@@ -9,15 +9,17 @@ const requestCache = new Map();
  */
 export const rateLimit = async (fn, key, duration = 5000) => {
   if (requestCache.has(key)) {
-    console.log(`[RateLimiter] Skipping request for key: ${key}`);
+    console.log(`[RateLimiter] Serving cached response for key: ${key}`);
     return requestCache.get(key);
   }
 
+  console.log(`[RateLimiter] Executing new request for key: ${key}`);
   const result = await fn();
   requestCache.set(key, result);
 
   setTimeout(() => {
     requestCache.delete(key);
+    console.log(`[RateLimiter] Cache expired for key: ${key}`);
   }, duration);
 
   return result;

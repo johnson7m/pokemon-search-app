@@ -1,33 +1,39 @@
+// src/contexts/TasksContext.js
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { collection, query, where, getDocs, addDoc, doc, updateDoc, onSnapshot, increment } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  doc,
+  updateDoc,
+  onSnapshot,
+  increment,
+} from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuthContext } from './AuthContext';
-import { updateUserStats } from '../services/statisticsService';
-// If you have an XP awarding service or function:
-import { addXp } from '../services/statisticsService';
+import { addXp, updateUserStats } from '../services/statisticsService';
 
 const TasksContext = createContext();
 
 export const TasksProvider = ({ children }) => {
   const { user } = useAuthContext();
 
-  // Global tasks
+  // Global tasks (daily, weekly, monthly)
   const [dailyTasks, setDailyTasks] = useState([]);
   const [weeklyTasks, setWeeklyTasks] = useState([]);
   const [monthlyTasks, setMonthlyTasks] = useState([]);
 
-  // User-specific tasks
-  const [acceptedTasks, setAcceptedTasks] = useState([]); // array of docs from userTasks/{uid}/acceptedTasks
+  // Accepted tasks for this user
+  const [acceptedTasks, setAcceptedTasks] = useState([]);
 
+  // 1) Load global tasks
   useEffect(() => {
-    // 1) Load global tasks from "tasks" collection
-    //    Optionally filter out tasks that are "daily", "weekly", "monthly"
     const loadGlobalTasks = async () => {
       try {
         const tasksRef = collection(db, 'tasks');
 
-        // You might do something like a single getDocs and partition them,
-        // but for clarity, let's do one getDocs per type:
         const dailyQ = query(tasksRef, where('taskType', '==', 'daily'));
         const dailySnap = await getDocs(dailyQ);
         setDailyTasks(dailySnap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -39,27 +45,24 @@ export const TasksProvider = ({ children }) => {
         const monthlyQ = query(tasksRef, where('taskType', '==', 'monthly'));
         const monthlySnap = await getDocs(monthlyQ);
         setMonthlyTasks(monthlySnap.docs.map(d => ({ id: d.id, ...d.data() })));
-
       } catch (error) {
         console.error('Error loading global tasks:', error);
       }
     };
-
     loadGlobalTasks();
   }, []);
 
+  // 2) Listen for user’s accepted tasks
   useEffect(() => {
-    // 2) Set up a real-time listener for user's accepted tasks if the user is logged in
     if (!user) {
       setAcceptedTasks([]);
       return;
     }
-
     const acceptedRef = collection(db, 'userTasks', user.uid, 'acceptedTasks');
     const unsubscribe = onSnapshot(acceptedRef, (snapshot) => {
-      const userTasks = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
+      const userTasks = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data(),
       }));
       setAcceptedTasks(userTasks);
     });
@@ -68,31 +71,55 @@ export const TasksProvider = ({ children }) => {
   }, [user]);
 
   /**
-   * Accept a task by copying relevant fields into userTasks/{uid}/acceptedTasks.
-   * If you only want the user to accept a task once, check for duplicates first.
+   * Accept a task => copy progressModules (if multi-subgoals).
+   * If no progressModules, treat as single sub-goal with {progressGoal, currentProgress, isCompleted} at the root.
    */
   const acceptTask = async (taskDoc) => {
     if (!user) return;
     try {
       const acceptedRef = collection(db, 'userTasks', user.uid, 'acceptedTasks');
-      // Create doc with initial fields
-      const payload = {
-        taskId: taskDoc.id,
-        title: taskDoc.title,
-        description: taskDoc.description,
-        taskType: taskDoc.taskType,
-        category: taskDoc.category,
-        difficulty: taskDoc.difficulty,
-        xpReward: taskDoc.xpReward || 0,
-        // For progress-based tasks:
-        progressType: taskDoc.progressType || null,
-        progressGoal: taskDoc.progressGoal || 0,
-        currentProgress: 0,
-        // Timestamps
-        acceptedAt: new Date(),
-        isCompleted: false,
-        completedAt: null,
-      };
+
+      let payload;
+      if (taskDoc.progressModules) {
+        // Multi-subgoal scenario
+        const modulesCopy = {};
+        for (const [modKey, modVal] of Object.entries(taskDoc.progressModules)) {
+          modulesCopy[modKey] = {
+            ...modVal,
+            currentProgress: 0,
+            isCompleted: false, // each sub-goal starts incomplete
+          };
+        }
+        payload = {
+          taskId: taskDoc.id,
+          title: taskDoc.title,
+          description: taskDoc.description,
+          taskType: taskDoc.taskType,
+          difficulty: taskDoc.difficulty,
+          xpReward: taskDoc.xpReward || 0,
+          progressModules: modulesCopy,
+          acceptedAt: new Date(),
+          isCompleted: false,
+          completedAt: null,
+        };
+      } else {
+        // Single sub-goal fallback
+        payload = {
+          taskId: taskDoc.id,
+          title: taskDoc.title,
+          description: taskDoc.description,
+          taskType: taskDoc.taskType,
+          difficulty: taskDoc.difficulty,
+          xpReward: taskDoc.xpReward || 0,
+          // single sub-goal data
+          progressGoal: taskDoc.progressGoal || 1,
+          currentProgress: 0,
+          isCompleted: false,
+          acceptedAt: new Date(),
+          completedAt: null,
+        };
+      }
+
       await addDoc(acceptedRef, payload);
       console.log(`Accepted task: ${taskDoc.title}`);
     } catch (error) {
@@ -101,53 +128,95 @@ export const TasksProvider = ({ children }) => {
   };
 
   /**
-   * Increment or update progress. E.g., if user searches for a Water-type,
-   * you might call updateTaskProgress for any "search" tasks in progress.
+   * updateTaskProgress(acceptedTask, progressType, incrementBy)
+   * - If multi-subgoal => find modules that match progressType, increment them,
+   *   set them isCompleted = true if they hit goal. But do NOT complete entire task.
+   * - If single sub-goal => just increment currentProgress and set isCompleted if it hits the goal.
+   *   Still do NOT complete entire task at doc level.
    */
-  const updateTaskProgress = async (acceptedTask, incrementBy = 1) => {
-    if (!user) return;
+  const updateTaskProgress = async (acceptedTask, progressType, incrementBy = 1) => {
+    if (!user || acceptedTask.isCompleted) return;
     try {
       const acceptedDocRef = doc(db, 'userTasks', user.uid, 'acceptedTasks', acceptedTask.id);
-  
-      const newProgress = (acceptedTask.currentProgress || 0) + incrementBy;
-      let updates = {
-        currentProgress: newProgress,
-      };
-  
-      // If we've reached or exceeded the goal, mark as completed
-      if (newProgress >= (acceptedTask.progressGoal || 1)) {
-        updates = {
-            currentProgress: acceptedTask.progressGoal
+
+      if (acceptedTask.progressModules) {
+        // Multi-subgoal
+        const newModules = { ...acceptedTask.progressModules };
+
+        Object.entries(newModules).forEach(([modKey, modVal]) => {
+          if (modVal.progressType === progressType && !modVal.isCompleted) {
+            // increment
+            let newVal = (modVal.currentProgress || 0) + incrementBy;
+            if (newVal >= modVal.progressGoal) {
+              newVal = modVal.progressGoal;
+              modVal.isCompleted = true; // sub-goal done
+            }
+            modVal.currentProgress = newVal;
+          }
+        });
+
+        // Update doc
+        await updateDoc(acceptedDocRef, { progressModules: newModules });
+      } else {
+        // single sub-goal fallback
+        if (acceptedTask.isCompleted) return; // done
+        let newVal = (acceptedTask.currentProgress || 0) + incrementBy;
+        let updates = {};
+        if (newVal >= (acceptedTask.progressGoal || 1)) {
+          newVal = acceptedTask.progressGoal;
         }
+        updates.currentProgress = newVal;
+        await updateDoc(acceptedDocRef, updates);
       }
-  
-      await updateDoc(acceptedDocRef, updates);
     } catch (error) {
-      console.error('Error updating task progress:', error);
+      console.error('Error updating progress:', error);
     }
   };
 
   /**
-   * For tasks that are completed via a single event (e.g., finishing a trivia question),
-   * you can call completeTask to set isCompleted=true, completedAt, and award XP.
+   * completeTask => user explicitly clicks "Complete" button once ALL sub-goals are done.
+   * We check if the sub-goals are indeed done. If so, set entire doc isCompleted = true,
+   * completedAt, award XP, increment tasksCompleted, etc.
    */
   const completeTask = async (acceptedTask, xpTrigger) => {
-    if (!user) return;
+    if (!user || acceptedTask.isCompleted) return;
     try {
       const acceptedDocRef = doc(db, 'userTasks', user.uid, 'acceptedTasks', acceptedTask.id);
+
+      // 1) If multi-subgoal, ensure all sub-goals are isCompleted
+      let allDone = true;
+      if (acceptedTask.progressModules) {
+        for (const mod of Object.values(acceptedTask.progressModules)) {
+          if (!mod.isCompleted) {
+            allDone = false;
+            break;
+          }
+        }
+      } else {
+        // single sub-goal => check if currentProgress >= progressGoal
+        if ((acceptedTask.currentProgress || 0) < (acceptedTask.progressGoal || 1)) {
+          allDone = false;
+        }
+      }
+
+      if (!allDone) {
+        console.log(`Cannot complete task ${acceptedTask.title}, sub-goals not finished.`);
+        return;
+      }
+
+      // 2) Mark entire doc as completed
       await updateDoc(acceptedDocRef, {
         isCompleted: true,
         completedAt: new Date(),
       });
-      // Award XP
+
+      // 3) Award XP once
       if (acceptedTask.xpReward) {
         await addXp(user.uid, acceptedTask.xpReward, xpTrigger);
       }
+      await updateUserStats(user.uid, { tasksCompleted: increment(1) });
 
-      await updateUserStats(user.uid, {
-        tasksCompleted: increment(1),
-      });
-      console.log(`Completed task: ${acceptedTask.title}`);
+      console.log(`User manually completed task: ${acceptedTask.title}`);
     } catch (error) {
       console.error('Error completing task:', error);
     }

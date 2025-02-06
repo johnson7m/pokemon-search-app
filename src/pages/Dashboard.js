@@ -24,8 +24,7 @@ import LeaderboardWidget from '../components/LeaderboardWidget';
 import './Dashboard.css';
 import { motion } from 'framer-motion';
 import { usePageContext } from '../contexts/PageContext';
-import { seedSampleTasks } from '../services/firestoreService';
-import { checkAndRefreshTasks } from '../services/tasksRefreshService';
+import AdminTools from '../adminTools/AdminTools';
 
 const xpNeededForLevel = (lvl) => (lvl <= 1 ? 0 : 100 * (lvl - 1) ** 2);
 
@@ -46,25 +45,6 @@ const Dashboard = React.memo(() => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const handleSeedTasks = async () => {
-    await seedSampleTasks();
-  }
-
-
-  const handleTestRefresh = async () => {
-    await checkAndRefreshTasks(user.uid);
-    alert('Refresh test complete!');
-  }
-  
-  const handleSyncWaterCounts = async () => {
-    try {
-      await syncWaterCounts();
-      alert('Water type sync completed!');
-    } catch (error) {
-      console.error('Error syncing water counts:', error);
-      alert('Failed to sync water counts.');
-    }
-  };
 
   useEffect(() => {
     console.log('Dashboard mounted');
@@ -175,7 +155,6 @@ const Dashboard = React.memo(() => {
               >
                 Manage Profile
               </Button>
-             {/* <Button onClick={handleTestRefresh}>testbutton</Button> */} 
             </Card.Body>
           </Card>
         </Col>
@@ -270,6 +249,16 @@ const Dashboard = React.memo(() => {
           <Card className="dashboard-card flex-fill" aria-label="Leaderboard Widget">
             <Card.Body>
               <LeaderboardWidget />
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+      <Row className='mt-4 gp-4'>
+        <Col xs={12} md={12} lg={12}>
+          <Card className="dashboard-card flex-fill">
+            <Card.Body>
+              <Card.Title>Admin Tools</Card.Title>
+              <AdminTools/>
             </Card.Body>
           </Card>
         </Col>

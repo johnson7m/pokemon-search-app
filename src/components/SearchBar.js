@@ -21,6 +21,7 @@ import PokemonGrid from './PokemonGrid';
 import { usePokemonSearch } from '../hooks/usePokemonSearch';
 import { usePokemonContext } from '../contexts/PokemonContext';
 import { useAuthContext } from '../contexts/AuthContext';
+import { matchesModuleCriteria } from '../utils/taskMatching';
 import { debounce } from 'lodash';
 import './SearchBar.css';
 import { FaMoon, FaSun } from 'react-icons/fa';
@@ -84,12 +85,14 @@ const SearchBar = ({ onPokemonSelect }) => {
 
   const handleSelect = async (pokemonObject) => {
     selectPokemon(pokemonObject);
+    console.log(pokemonObject.types)
     acceptedTasks
     .filter((t) => t.progressType === 'search' && !t.isCompleted)
-    .forEach((task) => {
-      updateTaskProgress(task, 1); 
-      // This calls your Firestore doc update; 
-      // if it hits progressGoal => isCompleted = true
+    .forEach(async (task) => {
+      const doesMatch = await matchesModuleCriteria(task, pokemonObject);
+      if (doesMatch) {
+        updateTaskProgress(task, 1); 
+      }
     });
     if (onPokemonSelect) {
       onPokemonSelect(pokemonObject);

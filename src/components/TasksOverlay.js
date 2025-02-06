@@ -29,14 +29,12 @@ const TasksOverlay = ({ show, onClose }) => {
     acceptTask,
   } = useTasksContext();
   const { xpTrigger } = useXpContext();
-
   const { theme } = useContext(ThemeContext);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [activeKey, setActiveKey] = useState('daily');
 
   if (!show) return null;
 
-  /** Separate tasks into "unaccepted" and "active" for a given type */
   const getTaskGroups = (tasks, typeLabel) => {
     const unaccepted = tasks.filter(
       (t) => !acceptedTasks.some((accepted) => accepted.taskId === t.id)
@@ -47,7 +45,9 @@ const TasksOverlay = ({ show, onClose }) => {
     return { unaccepted, active };
   };
 
-  /** Renders the tasks for one category (Daily/Weekly/Monthly) */
+  /**
+   * Renders "New" tasks + "Active" tasks in one column
+   */
   const renderTaskSection = (label, tasks, typeLabel) => {
     const { unaccepted, active } = getTaskGroups(tasks, typeLabel);
 
@@ -65,13 +65,10 @@ const TasksOverlay = ({ show, onClose }) => {
           </Card.Header>
 
           <Card.Body className="d-flex flex-column justify-content-between">
+            {/* NEW */}
             <div>
               <h6>New</h6>
-              {/* 
-                For a horizontal/row approach, we can do a row with flex-nowrap 
-                so you can scroll horizontally for multiple tasks 
-              */}
-              <Row style={{ gap: '1rem'}}>
+              <Row style={{ gap: '1rem' }}>
                 {unaccepted.length === 0 && <p className="ms-3">No new tasks</p>}
                 {unaccepted.map((task) => (
                   <Col key={task.id} xs="12" md="auto">
@@ -86,7 +83,10 @@ const TasksOverlay = ({ show, onClose }) => {
                             </small>
                           </Card.Text>
                         )}
-                        <Button variant="primary" onClick={() => acceptTask(task)}>
+                        <Button
+                          variant="primary"
+                          onClick={() => acceptTask(task)}
+                        >
                           Accept
                         </Button>
                       </Card.Body>
@@ -98,6 +98,7 @@ const TasksOverlay = ({ show, onClose }) => {
 
             <hr />
 
+            {/* ACTIVE */}
             <div>
               <h6>Active</h6>
               {active.length === 0 && <p>No active tasks</p>}
@@ -113,43 +114,124 @@ const TasksOverlay = ({ show, onClose }) => {
                         </small>
                       </Card.Text>
                     )}
-                    <div style={{ position: 'relative', marginRight: '0.5rem' }}>
-                        <ProgressBar
+
+                    {/* If we have multi-subgoal progressModules */}
+                    {acceptedTask.progressModules ? (
+                      <>
+                        {Object.entries(acceptedTask.progressModules).map(
+                          ([modKey, modVal]) => {
+                            const nowVal = modVal.currentProgress || 0;
+                            const maxVal = modVal.progressGoal || 1;
+                            const isModDone = modVal.isCompleted;
+                            const percent = Math.floor((nowVal / maxVal) * 100);
+
+                            return (
+                              <div
+                                key={modKey}
+                                style={{
+                                  position: 'relative',
+                                  marginBottom: '0.5rem'
+                                }}
+                              >
+                                <ProgressBar
+                                  now={percent}
+                                  variant={isModDone ? 'secondary' : 'info'}
+                                  style={{ height: '1rem', borderRadius: '0.5rem' }}
+                                />
+                                <div
+                                  style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    pointerEvents: 'none',
+                                    color:
+                                      theme === 'light'
+                                        ? isModDone
+                                          ? 'white'
+                                          : 'black'
+                                        : 'white',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 'bold',
+                                  }}
+                                >
+                                  {`${modKey}: ${nowVal}/${maxVal}`}
+                                </div>
+                              </div>
+                            );
+                          }
+                        )}
+                        {/* 
+                          Show "Complete" only if 
+                          every sub-goal is isCompleted === true
+                        */}
+                        {Object.values(acceptedTask.progressModules).every(
+                          (m) => m.isCompleted
+                        ) && (
+                          <Button
+                            variant="success"
+                            onClick={() => completeTask(acceptedTask, xpTrigger)}
+                          >
+                            Complete
+                          </Button>
+                        )}
+                      </>
+                    ) : (
+                      // single sub-goal fallback
+                      <>
+                        <div style={{ position: 'relative', marginRight: '0.5rem' }}>
+                          <ProgressBar
                             now={acceptedTask.currentProgress}
                             max={acceptedTask.progressGoal}
-                            variant={acceptedTask.currentProgress === acceptedTask.progressGoal ? 'secondary' : 'info'}
-                            style={{ height: '1rem', borderRadius: '0.5rem'}}
-                            aria-label={`${acceptedTask.currentProgress}/${acceptedTask.progressGoal}`}
-                            className="mb-2"
-                        />
-                        <div
+                            variant={
+                              acceptedTask.currentProgress >= acceptedTask.progressGoal
+                                ? 'secondary'
+                                : 'info'
+                            }
+                            style={{ height: '1rem', borderRadius: '0.5rem' }}
+                          />
+                          <div
                             style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                pointerEvents: 'none',
-                                color: theme === 'light' ? `${acceptedTask.currentProgress === acceptedTask.progressGoal ? 'white' : 'black'}` : 'white',
-                                fontSize: '0.75rem',
-                                fontWeight: 'bold'
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              pointerEvents: 'none',
+                              color:
+                                theme === 'light'
+                                  ? acceptedTask.currentProgress >= acceptedTask.progressGoal
+                                    ? 'white'
+                                    : 'black'
+                                  : 'white',
+                              fontSize: '0.75rem',
+                              fontWeight: 'bold',
                             }}
-                        >
-                            {`${acceptedTask.currentProgress}/${acceptedTask.progressGoal}`}                        
+                          >
+                            {`${acceptedTask.currentProgress}/${acceptedTask.progressGoal}`}
+                          </div>
                         </div>
-                    </div>
-                    {acceptedTask.currentProgress === acceptedTask.progressGoal && 
-                        <Button
-                        variant="success"
-                        onClick={() => completeTask(acceptedTask, xpTrigger)}
-                        >
-                            Complete
-                        </Button>
-                    }
 
+                        {/* 
+                          If single sub-goal is done => show Complete button
+                        */}
+                        {acceptedTask.currentProgress >= acceptedTask.progressGoal && (
+                          <Button
+                            variant="success"
+                            onClick={() => completeTask(acceptedTask, xpTrigger)}
+                          >
+                            Complete
+                          </Button>
+                        )}
+                      </>
+                    )}
                   </Card.Body>
                 </Card>
               ))}
@@ -160,7 +242,6 @@ const TasksOverlay = ({ show, onClose }) => {
     );
   };
 
-  /** MAIN RENDER **/
   return ReactDOM.createPortal(
     <div className="tasks-overlay-backdrop">
       <motion.div
@@ -175,8 +256,7 @@ const TasksOverlay = ({ show, onClose }) => {
           {/* Close button row */}
           <Row className="justify-content-end mb-2">
             <Col xs="auto">
-              <Button variant="close" onClick={onClose}>
-              </Button>
+              <Button variant="close" onClick={onClose}></Button>
             </Col>
           </Row>
 
@@ -222,7 +302,6 @@ const TasksOverlay = ({ show, onClose }) => {
               </Tab.Content>
             </Tab.Container>
           ) : (
-            // Desktop layout: 3 columns side by side
             <Row>
               {renderTaskSection('Daily', dailyTasks, 'daily')}
               {renderTaskSection('Weekly', weeklyTasks, 'weekly')}
