@@ -59,7 +59,7 @@ const TasksOverlay = ({ show, onClose }) => {
         className="mb-3"
         key={typeLabel}
       >
-        <Card className="h-100">
+        <Card className="h-100 shadow-lg">
           <Card.Header>
             <h4 className="mb-0">{label} Tasks</h4>
           </Card.Header>
@@ -113,18 +113,43 @@ const TasksOverlay = ({ show, onClose }) => {
                         </small>
                       </Card.Text>
                     )}
-                    <ProgressBar
-                      now={acceptedTask.currentProgress}
-                      max={acceptedTask.progressGoal}
-                      label={`${acceptedTask.currentProgress}/${acceptedTask.progressGoal}`}
-                      className="mb-2"
-                    />
-                    <Button
-                      variant="success"
-                      onClick={() => completeTask(acceptedTask, xpTrigger)}
-                    >
-                      Complete
-                    </Button>
+                    <div style={{ position: 'relative', marginRight: '0.5rem' }}>
+                        <ProgressBar
+                            now={acceptedTask.currentProgress}
+                            max={acceptedTask.progressGoal}
+                            variant={acceptedTask.currentProgress === acceptedTask.progressGoal ? 'secondary' : 'info'}
+                            style={{ height: '1rem', borderRadius: '0.5rem'}}
+                            aria-label={`${acceptedTask.currentProgress}/${acceptedTask.progressGoal}`}
+                            className="mb-2"
+                        />
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                pointerEvents: 'none',
+                                color: theme === 'light' ? `${acceptedTask.currentProgress === acceptedTask.progressGoal ? 'white' : 'black'}` : 'white',
+                                fontSize: '0.75rem',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            {`${acceptedTask.currentProgress}/${acceptedTask.progressGoal}`}                        
+                        </div>
+                    </div>
+                    {acceptedTask.currentProgress === acceptedTask.progressGoal && 
+                        <Button
+                        variant="success"
+                        onClick={() => completeTask(acceptedTask, xpTrigger)}
+                        >
+                            Complete
+                        </Button>
+                    }
+
                   </Card.Body>
                 </Card>
               ))}

@@ -15,6 +15,7 @@ import {
 } from 'react-bootstrap';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { useXpContext } from '../contexts/XpContext';
+import { useTasksContext } from '../contexts/TasksContext';
 import { usePageContext } from '../contexts/PageContext';
 import PokemonGrid from './PokemonGrid';
 import { usePokemonSearch } from '../hooks/usePokemonSearch';
@@ -25,6 +26,7 @@ import './SearchBar.css';
 import { FaMoon, FaSun } from 'react-icons/fa';
 
 const SearchBar = ({ onPokemonSelect }) => {
+  const { acceptedTasks, updateTaskProgress } = useTasksContext();
   const { theme, toggleTheme } = useContext(ThemeContext);
   const { xpTrigger } = useXpContext();
   const { pageState, setPageState } = usePageContext();
@@ -82,6 +84,13 @@ const SearchBar = ({ onPokemonSelect }) => {
 
   const handleSelect = async (pokemonObject) => {
     selectPokemon(pokemonObject);
+    acceptedTasks
+    .filter((t) => t.progressType === 'search' && !t.isCompleted)
+    .forEach((task) => {
+      updateTaskProgress(task, 1); 
+      // This calls your Firestore doc update; 
+      // if it hits progressGoal => isCompleted = true
+    });
     if (onPokemonSelect) {
       onPokemonSelect(pokemonObject);
     } else {

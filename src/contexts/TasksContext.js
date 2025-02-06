@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { collection, query, where, getDocs, addDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, doc, updateDoc, onSnapshot, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuthContext } from './AuthContext';
 import { updateUserStats } from '../services/statisticsService';
@@ -116,11 +116,8 @@ export const TasksProvider = ({ children }) => {
   
       // If we've reached or exceeded the goal, mark as completed
       if (newProgress >= (acceptedTask.progressGoal || 1)) {
-        updates.isCompleted = true;
-        updates.completedAt = new Date();
-        // Award XP here or in "completeTask" if you prefer
-        if (acceptedTask.xpReward) {
-          await addXp(user.uid, acceptedTask.xpReward);
+        updates = {
+            currentProgress: acceptedTask.progressGoal
         }
       }
   
@@ -148,7 +145,7 @@ export const TasksProvider = ({ children }) => {
       }
 
       await updateUserStats(user.uid, {
-        tasksCompleted: + 1,
+        tasksCompleted: increment(1),
       });
       console.log(`Completed task: ${acceptedTask.title}`);
     } catch (error) {

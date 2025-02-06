@@ -51,6 +51,11 @@ const Dashboard = React.memo(() => {
   }
 
 
+  const handleTestRefresh = async () => {
+    await checkAndRefreshTasks(user.uid);
+    alert('Refresh test complete!');
+  }
+  
   const handleSyncWaterCounts = async () => {
     try {
       await syncWaterCounts();
@@ -170,6 +175,7 @@ const Dashboard = React.memo(() => {
               >
                 Manage Profile
               </Button>
+             {/* <Button onClick={handleTestRefresh}>testbutton</Button> */} 
             </Card.Body>
           </Card>
         </Col>
