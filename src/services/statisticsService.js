@@ -1,15 +1,27 @@
+// src/services/statisticsService.js
 import { db } from '../firebase';
-import { doc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { firestoreOperation } from '../utils/firestoreWrapper';
 import { getFavoritesCount } from './firestoreService';
+import { clearCachedFirestoreData } from '../utils/firestoreCache';
 
 const USER_STATS_COLLECTION = 'userStatistics';
+
+const xpNeededForLevel = (lvl) => {
+  return 100 * (lvl - 1) ** 2 || 50;
+};
+
+const maybeUnlockAchievement = (achievementsArray, achievementKey) => {
+  if (!achievementsArray.includes(achievementKey)) {
+    return [...achievementsArray, achievementKey];
+  }
+  return achievementsArray;
+};
 
 export const getUserStats = async (userId) => {
   try {
     const userStatsRef = doc(db, USER_STATS_COLLECTION, userId);
     const key = `getUserStats_${userId}`;
-    // Use caching for getDoc; transform snapshot into plain object.
     let userStatsData = await firestoreOperation(
       'getDoc',
       key,
@@ -44,6 +56,8 @@ export const getUserStats = async (userId) => {
         userStatsRef,
         initialStats
       );
+      // Clear the stale cache
+      await clearCachedFirestoreData(key);
       userStatsData = await firestoreOperation(
         'getDoc',
         key,
@@ -82,6 +96,8 @@ export const getUserStats = async (userId) => {
         userStatsRef,
         { totalFavorites }
       );
+      // Clear cache so that subsequent reads get fresh data.
+      await clearCachedFirestoreData(key);
     }
 
     return { level, xp, achievements, badges, totalSearches, totalFavorites, totalTimeSpent };
@@ -128,6 +144,7 @@ export const addXp = async (userId, xpAmount = 0, triggerToast = null) => {
         userStatsRef,
         initData
       );
+      await clearCachedFirestoreData(keyGetDoc);
       userStatsData = await firestoreOperation(
         'getDoc',
         keyGetDoc,
@@ -162,6 +179,7 @@ export const addXp = async (userId, xpAmount = 0, triggerToast = null) => {
       userStatsRef,
       { xp, level, achievements, badges, totalSearches, totalFavorites, totalTimeSpent }
     );
+    await clearCachedFirestoreData(keyGetDoc);
 
     if (triggerToast) {
       if (xpAmount > 0) {
@@ -191,18 +209,8 @@ export const updateUserStats = async (userId, partialData = {}) => {
       userStatsRef,
       partialData
     );
+    await clearCachedFirestoreData(`getUserStats_${userId}`);
   } catch (error) {
     console.error('Error updating user stats:', error);
   }
-};
-
-const xpNeededForLevel = (lvl) => {
-  return 100 * (lvl - 1) ** 2 || 50;
-};
-
-const maybeUnlockAchievement = (achievementsArray, achievementKey) => {
-  if (!achievementsArray.includes(achievementKey)) {
-    return [...achievementsArray, achievementKey];
-  }
-  return achievementsArray;
 };

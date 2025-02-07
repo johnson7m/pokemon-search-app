@@ -1,6 +1,8 @@
+// src/utils/firestoreCache.js
 import { getDB } from './db';
+import { clearRateLimiterCache } from './rateLimiter';
 
-const CACHE_TTL = 60 * 1000; // 1 minute TTL (adjust as needed)
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes TTL
 
 export const getCachedFirestoreData = async (key) => {
   const db = await getDB();
@@ -33,5 +35,7 @@ export const clearCachedFirestoreData = async (key) => {
   const store = tx.objectStore('firestoreCache');
   await store.delete(key);
   await tx.done;
-  console.log(`Cleared cache for ${key}.`);
+  console.log(`Cleared cache for ${key} from IndexedDB.`);
+  // ALSO clear the in-memory (rate limiter) cache
+  clearRateLimiterCache(key);
 };

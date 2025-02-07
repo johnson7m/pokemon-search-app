@@ -112,7 +112,7 @@ export const toggleFavoritePokemon = async (pokemon, xpTrigger) => {
       where('userId', '==', user.uid),
       where('pokemon.id', '==', pokemon.id)
     );
-    // Disable caching for this query because the QuerySnapshot object isn’t cloneable.
+    // We disable caching for this query because the QuerySnapshot is not cloneable.
     const keyGetDocs = `toggleFavoritePokemon_getDocs_${user.uid}_${pokemon.id}`;
     const querySnapshot = await firestoreOperation(
       'getDocs',
@@ -134,7 +134,6 @@ export const toggleFavoritePokemon = async (pokemon, xpTrigger) => {
           docSnapshot.ref
         );
       });
-      // Invalidate affected caches.
       await clearCachedFirestoreData(`getFavoritePokemon_${user.uid}`);
       await clearCachedFirestoreData(`getFavoritesCount_${user.uid}`);
       return { success: true, message: 'Removed from favorites!' };
@@ -163,14 +162,11 @@ export const toggleFavoritePokemon = async (pokemon, xpTrigger) => {
       // Award XP and update stats.
       await addXp(user.uid, 15, xpTrigger);
       await updateUserStats(user.uid, { totalFavorites: increment(1) });
-
-      // Optionally update waterCount.
       const pokemonTypes = pokemon.types.map((typeInfo) => typeInfo.type.name);
       console.log('toggleFavoritePokemon => pokemon types:', pokemonTypes);
       if (pokemonTypes.includes('water')) {
         await updateUserStats(user.uid, { waterCount: increment(1) });
       }
-      // Invalidate caches that rely on favorites.
       await clearCachedFirestoreData(`getFavoritePokemon_${user.uid}`);
       await clearCachedFirestoreData(`getFavoritesCount_${user.uid}`);
 

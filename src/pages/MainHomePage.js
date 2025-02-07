@@ -9,6 +9,8 @@ import Dashboard from './Dashboard';
 import './MainHomePage.css';
 import { usePageContext } from '../contexts/PageContext';
 import { PokemonProvider } from '../contexts/PokemonContext';
+import { FavoritesProvider } from '../contexts/FavoritesContext';
+import { SearchHistoryProvider } from '../contexts/SearchHistoryContext';
 import FeaturedPokemon from '../components/FeaturedPokemon';
 import PokemonDetailPage from './PokemonDetailPage';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -46,31 +48,35 @@ const MainHomePage = () => {
 
   return (
     <PokemonProvider>
-      <Container data-bs-theme={theme} className={`mt-5 main-homepage-container`} role="main">
-        <h1 tabIndex="0">
-          {user
-            ? `Welcome back, ${user.displayName || 'Trainer'}!`
-            : 'Welcome to the Pokémon Search Index'}
-        </h1>
+      <FavoritesProvider>
+        <SearchHistoryProvider>
+          <Container data-bs-theme={theme} className={`mt-5 main-homepage-container`} role="main">
+            <h1 tabIndex="0">
+              {user
+                ? `Welcome back, ${user.displayName || 'Trainer'}!`
+                : 'Welcome to the Pokémon Search Index'}
+            </h1>
 
-        {/* Persistent Search */}
-        <SearchBar />
+            {/* Persistent Search */}
+            <SearchBar />
 
-        {/* Task Toggle Button */}
-        <TasksToggleFixed onToggle={handleToggleTasks}/>
+            {/* Task Toggle Button */}
+            <TasksToggleFixed onToggle={handleToggleTasks} />
 
-        {/* The overlay that appears */}
-        <AnimatePresence>
-          {showTasksOverlay && (
-            <TasksOverlay show={showTasksOverlay} onClose={closeOverlay} />
-          )}
-        </AnimatePresence>        
+            {/* The overlay that appears */}
+            <AnimatePresence>
+              {showTasksOverlay && (
+                <TasksOverlay show={showTasksOverlay} onClose={closeOverlay} />
+              )}
+            </AnimatePresence>
 
-        {/* AnimatePresence handles mounting and unmounting animations */}
-        <AnimatePresence mode="wait">
-            {renderSelectedContent()}
-        </AnimatePresence>
-      </Container>
+            {/* AnimatePresence handles mounting and unmounting animations */}
+            <AnimatePresence mode="wait">
+              {renderSelectedContent()}
+            </AnimatePresence>
+          </Container>
+        </SearchHistoryProvider>
+      </FavoritesProvider>
     </PokemonProvider>
   );
 };
