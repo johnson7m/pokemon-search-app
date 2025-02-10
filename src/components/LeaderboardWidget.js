@@ -117,4 +117,4 @@ const LeaderboardWidget = () => {
   );
 };
 
-export default LeaderboardWidget;
+export default React.memo(LeaderboardWidget);
