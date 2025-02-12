@@ -85,15 +85,30 @@ const SearchBar = ({ onPokemonSelect }) => {
 
   const handleSelect = async (pokemonObject) => {
     selectPokemon(pokemonObject);
-    console.log(pokemonObject.types)
-    acceptedTasks
-    .filter((t) => t.progressType === 'search' && !t.isCompleted)
-    .forEach(async (task) => {
-      const doesMatch = await matchesModuleCriteria(task, pokemonObject);
-      if (doesMatch) {
-        updateTaskProgress(task, 1); 
+
+    // Iterate over all accepted tasks.
+    acceptedTasks.forEach(async (task) => {
+      if (task.progressModules) {
+        // For each module inside progressModules:
+        for (const [modKey, modVal] of Object.entries(task.progressModules)) {
+          if (modVal.progressType === 'search' && !modVal.isCompleted) {
+            const doesMatch = await matchesModuleCriteria(modVal, pokemonObject);
+            if (doesMatch) {
+              // Update the task progress for this module's progress type.
+              updateTaskProgress(task, modVal.progressType, 1, modKey);
+              // (If you want to update only once per task, you might consider breaking out here.)
+            }
+          }
+        }
+      } else if (task.searchCriteria) {
+        // For single sub-goal tasks that (if any) store searchCriteria at the root:
+        const doesMatch = await matchesModuleCriteria(task, pokemonObject);
+        if (doesMatch) {
+          updateTaskProgress(task, task.searchCriteria.progressType || 'search', 1);
+        }
       }
     });
+
     if (onPokemonSelect) {
       onPokemonSelect(pokemonObject);
     } else {
@@ -101,7 +116,6 @@ const SearchBar = ({ onPokemonSelect }) => {
     }
     setShowAutoComplete(false);
   };
-
   const handleAutocompleteClick = async (pokemonItem) => {
     const selected = await handleSelectAutocomplete(pokemonItem);
     if (selected) {

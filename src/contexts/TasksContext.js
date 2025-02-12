@@ -134,7 +134,7 @@ export const TasksProvider = ({ children }) => {
    * - If single sub-goal => just increment currentProgress and set isCompleted if it hits the goal.
    *   Still do NOT complete entire task at doc level.
    */
-  const updateTaskProgress = async (acceptedTask, progressType, incrementBy = 1) => {
+  const updateTaskProgress = async (acceptedTask, progressType, incrementBy = 1, moduleKey = null) => {
     if (!user || acceptedTask.isCompleted) return;
     try {
       const acceptedDocRef = doc(db, 'userTasks', user.uid, 'acceptedTasks', acceptedTask.id);
@@ -143,35 +143,42 @@ export const TasksProvider = ({ children }) => {
         // Multi-subgoal
         const newModules = { ...acceptedTask.progressModules };
 
-        Object.entries(newModules).forEach(([modKey, modVal]) => {
+        if (moduleKey && newModules[moduleKey]) {
+          // Update only the specified module.
+          const modVal = newModules[moduleKey];
           if (modVal.progressType === progressType && !modVal.isCompleted) {
-            // increment
             let newVal = (modVal.currentProgress || 0) + incrementBy;
             if (newVal >= modVal.progressGoal) {
               newVal = modVal.progressGoal;
-              modVal.isCompleted = true; // sub-goal done
+              modVal.isCompleted = true;
             }
             modVal.currentProgress = newVal;
           }
-        });
-
-        // Update doc
+        } else {
+          // Fallback: update all modules matching progressType.
+          Object.entries(newModules).forEach(([modKey, modVal]) => {
+            if (modVal.progressType === progressType && !modVal.isCompleted) {
+              let newVal = (modVal.currentProgress || 0) + incrementBy;
+              if (newVal >= modVal.progressGoal) {
+                newVal = modVal.progressGoal;
+                modVal.isCompleted = true;
+              }
+              modVal.currentProgress = newVal;
+            }
+          });
+        }
         await updateDoc(acceptedDocRef, { progressModules: newModules });
       } else {
-        // single sub-goal fallback
-        if (acceptedTask.isCompleted) return; // done
+        // Single sub-goal fallback
         let newVal = (acceptedTask.currentProgress || 0) + incrementBy;
-        let updates = {};
-        if (newVal >= (acceptedTask.progressGoal || 1)) {
-          newVal = acceptedTask.progressGoal;
-        }
-        updates.currentProgress = newVal;
+        const updates = { currentProgress: Math.min(newVal, acceptedTask.progressGoal || 1) };
         await updateDoc(acceptedDocRef, updates);
       }
     } catch (error) {
       console.error('Error updating progress:', error);
     }
   };
+
 
   /**
    * completeTask => user explicitly clicks "Complete" button once ALL sub-goals are done.
