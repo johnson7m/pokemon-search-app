@@ -1,3 +1,4 @@
+// src/services/tasksRefreshService.js
 import { db } from '../firebase';
 import { firestoreOperation } from '../utils/firestoreWrapper';
 import { doc, collection } from 'firebase/firestore';
@@ -11,20 +12,24 @@ export const checkAndRefreshTasks = async (userId) => {
   try {
     const userStatsRef = doc(db, 'userStatistics', userId);
     const keyGetDoc = `checkAndRefreshTasks_getDoc_${userId}`;
-    // For tasks refresh, we can use a short cache TTL (or bypass caching if needed)
+    // Bypass cache so that we always have the current refresh times
     const snap = await firestoreOperation(
       'getDoc',
       keyGetDoc,
       'checkAndRefreshTasks',
-      { useCache: true },
+      { useCache: false },
       userStatsRef
     );
     if (!snap.exists()) return;
     const data = snap.data();
     const now = dayjs();
+
+    // If the stored refresh value is a Firestore Timestamp, call toDate(), else use directly.
+    const getDate = (ts) => (ts && ts.toDate ? ts.toDate() : ts);
+
     const { lastDailyRefresh, lastWeeklyRefresh, lastMonthlyRefresh } = data;
 
-    if (!lastDailyRefresh || dayjs(lastDailyRefresh.toDate()).add(DAILY_HOURS, 'hour').isBefore(now)) {
+    if (!lastDailyRefresh || dayjs(getDate(lastDailyRefresh)).add(DAILY_HOURS, 'hour').isBefore(now)) {
       await clearAcceptedTasks(userId, 'daily');
       const keyUpdateDocDaily = `checkAndRefreshTasks_updateDoc_daily_${userId}`;
       await firestoreOperation(
@@ -36,7 +41,7 @@ export const checkAndRefreshTasks = async (userId) => {
         { lastDailyRefresh: new Date() }
       );
     }
-    if (!lastWeeklyRefresh || dayjs(lastWeeklyRefresh.toDate()).add(WEEKLY_HOURS, 'hour').isBefore(now)) {
+    if (!lastWeeklyRefresh || dayjs(getDate(lastWeeklyRefresh)).add(WEEKLY_HOURS, 'hour').isBefore(now)) {
       await clearAcceptedTasks(userId, 'weekly');
       const keyUpdateDocWeekly = `checkAndRefreshTasks_updateDoc_weekly_${userId}`;
       await firestoreOperation(
@@ -48,7 +53,7 @@ export const checkAndRefreshTasks = async (userId) => {
         { lastWeeklyRefresh: new Date() }
       );
     }
-    if (!lastMonthlyRefresh || dayjs(lastMonthlyRefresh.toDate()).add(MONTHLY_HOURS, 'hour').isBefore(now)) {
+    if (!lastMonthlyRefresh || dayjs(getDate(lastMonthlyRefresh)).add(MONTHLY_HOURS, 'hour').isBefore(now)) {
       await clearAcceptedTasks(userId, 'monthly');
       const keyUpdateDocMonthly = `checkAndRefreshTasks_updateDoc_monthly_${userId}`;
       await firestoreOperation(
@@ -70,6 +75,7 @@ const clearAcceptedTasks = async (userId, taskType) => {
   try {
     const acceptedTasksRef = collection(db, 'userTasks', userId, 'acceptedTasks');
     const keyGetDocs = `clearAcceptedTasks_getDocs_${userId}_${taskType}`;
+    // Always bypass cache when clearing accepted tasks
     const snapshot = await firestoreOperation(
       'getDocs',
       keyGetDocs,
@@ -79,7 +85,8 @@ const clearAcceptedTasks = async (userId, taskType) => {
     );
     for (const docSnap of snapshot.docs) {
       const t = docSnap.data();
-      if (t.taskType === taskType) {
+      // Use a case-insensitive comparison so that "Daily" equals "daily"
+      if (t.taskType && t.taskType.toLowerCase() === taskType.toLowerCase()) {
         const keyDeleteDoc = `clearAcceptedTasks_deleteDoc_${docSnap.id}`;
         await firestoreOperation(
           'deleteDoc',

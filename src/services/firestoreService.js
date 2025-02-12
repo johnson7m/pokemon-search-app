@@ -58,9 +58,11 @@ const sampleTasks = [
     difficulty: "medium",
     xpReward: 200,
     progressModules: {
-      progressType: "search",
-      progressGoal: 10,
-      searchCriteria: { evolutionStagesAllowed: [2] },
+      main: {
+          progressType: "search",
+          progressGoal: 10,
+          searchCriteria: { evolutionStagesAllowed: [2] },
+        },
     },
   },
   {
